@@ -1,5 +1,7 @@
 # Serilog.Sinks.LogicMonitor
-A [Serilog](https://github.com/serilog/serilog) sink that writes to LogicMonitor
+A [Serilog](https://github.com/serilog/serilog) sink that writes to LogicMonitor.
+
+NOTE: **FieldWriters are not yet used and can be omitted.**
 
 **Package** - [Serilog.Sinks.LogicMonitor](https://www.nuget.org/packages/Serilog.Sinks.LogicMonitor.PanoramicData/)
 | **Platforms** - .NET Standard 2.0
