@@ -30,7 +30,15 @@ var fieldWriters = new Dictionary<string, FieldWriterBase>
 		 {"machine_name", new SinglePropertyFieldWriter("MachineName", PropertyWriteMethod.ToString, "l") }
 	};
 
+// This is the LogicMonitor device id.
+// You can find this value in the device's "Info" tab.
+var deviceId=1234;
+
 var logger = new LoggerConfiguration()
-	.WriteTo.LogicMonitor(logicMonitorClientOptions, fieldWriters)
+	.WriteTo.LogicMonitor(
+		logicMonitorClientOptions,
+		deviceId,
+		fieldWriters
+	)
 	.CreateLogger();
 ```
