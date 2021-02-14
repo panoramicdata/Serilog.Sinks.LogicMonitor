@@ -9,13 +9,13 @@
 		<Copyright>Panoramic Data Limited 2021</Copyright>
 		<Product>Serilog.Sinks.LogicMonitor</Product>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
-		<PackageProjectUrl>https://github.com/panoramicdata/serilog-sinks-logicmonitor</PackageProjectUrl>
+		<PackageProjectUrl>https://github.com/panoramicdata/serilog.sinks.logicmonitor</PackageProjectUrl>
 		<PackageIcon>icon.png</PackageIcon>
 		<PackageIconUrl />
-		<RepositoryUrl>git@github.com:panoramicdata/serilog-sinks-logicmonitor.git</RepositoryUrl>
+		<RepositoryUrl>git@github.com:panoramicdata/serilog.sinks.logicmonitor.git</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
 		<PackageTags>Serilog Sink LogicMonitor</PackageTags>
-		<PackageReleaseNotes>Initial release</PackageReleaseNotes>
+		<PackageReleaseNotes>Fixed nuget project links</PackageReleaseNotes>
 		<LangVersion>latest</LangVersion>
 		<Nullable>enable</Nullable>
 	</PropertyGroup>
