@@ -21,7 +21,9 @@ namespace Serilog.Sinks.LogicMonitor
 		private object PropertiesToJson(LogEvent logEvent)
 		{
 			if (logEvent.Properties.Count == 0)
+			{
 				return "{}";
+			}
 
 			var valuesFormatter = new JsonValueFormatter();
 

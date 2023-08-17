@@ -6,7 +6,7 @@ namespace Serilog.Sinks.LogicMonitor
 	/// <summary>
 	/// Writes log level
 	/// </summary>
-	public partial class LevelFieldWriter : FieldWriterBase
+	public class LevelFieldWriter : FieldWriterBase
 	{
 		private readonly bool _renderAsText;
 

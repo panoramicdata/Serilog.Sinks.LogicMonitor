@@ -58,7 +58,7 @@ namespace Serilog.Sinks.LogicMonitor
 			foreach (var logEvent in logEventBatch)
 			{
 				// Write to LogicMonitor
-				var _ = await logicMonitorClient
+				_ = await logicMonitorClient
 					.WriteLogAsync(_deviceId, logEvent.RenderMessage(_formatProvider))
 					.ConfigureAwait(false);
 			}
