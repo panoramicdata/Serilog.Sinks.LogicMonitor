@@ -10,12 +10,16 @@ namespace Serilog.Sinks.LogicMonitor
 	{
 		private readonly bool _renderAsText;
 
-		public LevelFieldWriter(bool renderAsText = false)
+
+		public LevelFieldWriter() : this(false) {}
+		public LevelFieldWriter(bool renderAsText)
 		{
 			_renderAsText = renderAsText;
 		}
 
-		public override object? GetValue(LogEvent logEvent, IFormatProvider? formatProvider = null)
+		public object? GetValue(LogEvent logEvent) => GetValue(logEvent, null);
+
+		public override object? GetValue(LogEvent logEvent, IFormatProvider? formatProvider)
 		{
 			if (_renderAsText)
 			{

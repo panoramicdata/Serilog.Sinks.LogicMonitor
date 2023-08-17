@@ -11,7 +11,11 @@ namespace Serilog.Sinks.LogicMonitor
 	/// </summary>
 	public class LogEventSerializedFieldWriter : FieldWriterBase
 	{
-		public override object? GetValue(LogEvent logEvent, IFormatProvider? formatProvider = null)
+
+		public object? GetValue(LogEvent logEvent)
+			=> GetValue(logEvent, null);
+
+		public override object? GetValue(LogEvent logEvent, IFormatProvider? formatProvider)
 			=> LogEventToJson(logEvent, formatProvider);
 
 		private object LogEventToJson(LogEvent logEvent, IFormatProvider? formatProvider)
