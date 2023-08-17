@@ -6,7 +6,7 @@ NOTE: **FieldWriters are not yet used and can be omitted.**
 **Package** - [Serilog.Sinks.LogicMonitor](https://www.nuget.org/packages/Serilog.Sinks.LogicMonitor.PanoramicData/)
 | **Platforms** - .NET Standard 2.0
 
-#### Code
+## Code
 
 ```csharp
 var logicMonitorClientOptions = new LogicMonitorClientOptions
