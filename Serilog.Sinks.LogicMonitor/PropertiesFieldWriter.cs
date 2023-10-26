@@ -11,13 +11,19 @@ namespace Serilog.Sinks.LogicMonitor
 	/// </summary>
 	public class PropertiesFieldWriter : FieldWriterBase
 	{
-		public override object? GetValue(LogEvent logEvent, IFormatProvider? formatProvider = null)
+
+		public object? GetValue(LogEvent logEvent)
+			=> GetValue(logEvent, null);
+
+		public override object? GetValue(LogEvent logEvent, IFormatProvider? formatProvider)
 			=> PropertiesToJson(logEvent);
 
 		private object PropertiesToJson(LogEvent logEvent)
 		{
 			if (logEvent.Properties.Count == 0)
+			{
 				return "{}";
+			}
 
 			var valuesFormatter = new JsonValueFormatter();
 

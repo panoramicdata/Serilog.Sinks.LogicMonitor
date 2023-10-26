@@ -8,7 +8,11 @@ namespace Serilog.Sinks.LogicMonitor
 	/// </summary>
 	public class ExceptionFieldWriter : FieldWriterBase
 	{
-		public override object? GetValue(LogEvent logEvent, IFormatProvider? formatProvider = null)
+
+		public object? GetValue(LogEvent logEvent)
+			=> GetValue(logEvent, null);
+
+		public override object? GetValue(LogEvent logEvent, IFormatProvider? formatProvider)
 			=> logEvent.Exception?.ToString();
 	}
 }
