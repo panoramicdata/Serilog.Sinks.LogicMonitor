@@ -166,3 +166,4 @@ WixInstallerApi*.wxs
 /.vs
 
 appsettings.json
+/Serilog.Sinks.LogicMonitor.IntegrationTests/appsettings.json
