@@ -41,10 +41,12 @@ namespace Serilog.Sinks.LogicMonitor
 			{
 				throw new ArgumentNullException(nameof(sinkConfiguration));
 			}
+
 			if (logicmonitorClientOptions is null)
 			{
 				throw new ArgumentNullException(nameof(logicmonitorClientOptions));
 			}
+
 			if (deviceId <= 0)
 			{
 				throw new ArgumentOutOfRangeException(nameof(deviceId), "Should be greater than 0.");

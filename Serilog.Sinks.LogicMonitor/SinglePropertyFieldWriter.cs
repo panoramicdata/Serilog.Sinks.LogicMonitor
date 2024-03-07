@@ -9,22 +9,16 @@ namespace Serilog.Sinks.LogicMonitor
 	/// <summary>
 	/// Write single event property
 	/// </summary>
-	public class SinglePropertyFieldWriter : FieldWriterBase
+	public class SinglePropertyFieldWriter(
+		string propertyName,
+		PropertyWriteMethod writeMethod = PropertyWriteMethod.ToString,
+		string? format = null) : FieldWriterBase
 	{
-		public string Name { get; }
-		public PropertyWriteMethod WriteMethod { get; }
-		public string? Format { get; }
+		public string Name { get; } = propertyName;
 
-		public SinglePropertyFieldWriter(
-			string propertyName,
-			PropertyWriteMethod writeMethod = PropertyWriteMethod.ToString,
-			string? format = null)
-		{
-			Name = propertyName;
-			WriteMethod = writeMethod;
-			Format = format;
-		}
+		public PropertyWriteMethod WriteMethod { get; } = writeMethod;
 
+		public string? Format { get; } = format;
 
 		public object? GetValue(LogEvent logEvent)
 			=> GetValue(logEvent, null);
@@ -57,7 +51,7 @@ namespace Serilog.Sinks.LogicMonitor
 			}
 		}
 
-		private object GetPropertyValue(LogEventPropertyValue logEventProperty)
+		private object? GetPropertyValue(LogEventPropertyValue logEventProperty)
 		{
 			//TODO: Add support for arrays
 			if (logEventProperty is ScalarValue scalarValue)

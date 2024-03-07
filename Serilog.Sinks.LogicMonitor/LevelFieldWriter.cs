@@ -6,16 +6,12 @@ namespace Serilog.Sinks.LogicMonitor
 	/// <summary>
 	/// Writes log level
 	/// </summary>
-	public class LevelFieldWriter : FieldWriterBase
+	public class LevelFieldWriter(bool renderAsText) : FieldWriterBase
 	{
-		private readonly bool _renderAsText;
+		private readonly bool _renderAsText = renderAsText;
 
 
-		public LevelFieldWriter() : this(false) {}
-		public LevelFieldWriter(bool renderAsText)
-		{
-			_renderAsText = renderAsText;
-		}
+		public LevelFieldWriter() : this(false) { }
 
 		public object? GetValue(LogEvent logEvent) => GetValue(logEvent, null);
 

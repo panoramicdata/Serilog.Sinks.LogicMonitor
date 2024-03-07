@@ -6,12 +6,8 @@ using Xunit.Abstractions;
 
 namespace Serilog.Sinks.LogicMonitor.IntegrationTests
 {
-	public class LmWriteWithSchemaTests : BaseTest
+	public class LmWriteWithSchemaTests(ITestOutputHelper testOutputHelper) : BaseTest(testOutputHelper)
 	{
-		public LmWriteWithSchemaTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
-		{
-		}
-
 		[Fact]
 		public void Write50Events_ShouldInsert50EventsToDb()
 		{
