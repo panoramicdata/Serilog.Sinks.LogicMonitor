@@ -9,6 +9,37 @@ namespace Serilog.Sinks.LogicMonitor.IntegrationTests
 	public class LmWriteWithSchemaTests(ITestOutputHelper testOutputHelper) : BaseTest(testOutputHelper)
 	{
 		[Fact]
+		public void WriteAnErrorEvent_ShouldSucceed()
+		{
+			var testObject = new TestObjectType1 { IntProp = 42, StringProp = "Test" };
+			var testObj2 = new TestObjectType2 { DateProp1 = DateTime.Now, NestedProp = testObject };
+
+			var fieldProperties = new Dictionary<string, FieldWriterBase>
+				{
+					{"message", new RenderedMessageFieldWriter() },
+					{"message_template", new MessageTemplateFieldWriter() },
+					{"level", new LevelFieldWriter(true) },
+					{"raise_date", new TimestampFieldWriter() },
+					{"exception", new ExceptionFieldWriter() },
+					{"properties", new LogEventSerializedFieldWriter() },
+					{"props_test", new PropertiesFieldWriter() },
+					{"machine_name", new SinglePropertyFieldWriter("MachineName") }
+				};
+
+			using var logger = new LoggerConfiguration().WriteTo.LogicMonitor(
+				LogicMonitorClientOptions,
+				DeviceId,
+				fieldProperties
+			)
+				.Enrich.WithMachineName()
+				.CreateLogger();
+
+			logger.Error("Error Writing Test: {@testObject} test2: {@testObj2}", testObject, testObj2);
+
+			// TODO - Test it worked
+		}
+
+		[Fact]
 		public void Write50Events_ShouldInsert50EventsToDb()
 		{
 			var testObject = new TestObjectType1 { IntProp = 42, StringProp = "Test" };
@@ -80,7 +111,7 @@ namespace Serilog.Sinks.LogicMonitor.IntegrationTests
 		}
 
 		[Fact]
-		public void ColumnsAndTableWithDifferentCaseName_ShouldCreateTableAndIsertEvents()
+		public void ColumnsAndTableWithDifferentCaseName_ShouldCreateTableAndInsertEvents()
 		{
 			var testObject = new TestObjectType1 { IntProp = 42, StringProp = "Test" };
 			var testObj2 = new TestObjectType2 { DateProp1 = DateTime.Now, NestedProp = testObject };
