@@ -15,7 +15,7 @@
 		<RepositoryUrl>git@github.com:panoramicdata/serilog.sinks.logicmonitor.git</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
 		<PackageTags>Serilog Sink LogicMonitor</PackageTags>
-		<PackageReleaseNotes>Fixed nuget project links</PackageReleaseNotes>
+		<PackageReleaseNotes>Updated to .NET 8.0 / C#12.  Updated nuget packages.  Moved to LogicMonitor API v3.</PackageReleaseNotes>
 		<LangVersion>latest</LangVersion>
 		<Nullable>enable</Nullable>
 	</PropertyGroup>
