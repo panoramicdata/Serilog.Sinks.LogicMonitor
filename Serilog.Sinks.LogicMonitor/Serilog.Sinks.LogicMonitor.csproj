@@ -6,7 +6,7 @@
 		<PackageId>Serilog.Sinks.LogicMonitor</PackageId>
 		<Company>Panoramic Data Limited</Company>
 		<Authors>David Bond</Authors>
-		<Copyright>Panoramic Data Limited 2021</Copyright>
+		<Copyright>Panoramic Data Limited 2021-2024</Copyright>
 		<Product>Serilog.Sinks.LogicMonitor</Product>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageProjectUrl>https://github.com/panoramicdata/serilog.sinks.logicmonitor</PackageProjectUrl>
@@ -21,10 +21,8 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<None Include="..\icon.png">
-			<Pack>True</Pack>
-			<PackagePath></PackagePath>
-		</None>
+		<None Include="..\icon.png" Pack="True" PackagePath="" />
+		<None Include="README.md" Pack="true" PackagePath="" />
 	</ItemGroup>
 
 	<ItemGroup>
