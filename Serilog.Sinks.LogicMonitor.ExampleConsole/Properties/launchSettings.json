@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Serilog.Sinks.LogicMonitor.ExampleConsole": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "HOSTNAME": "bob"
+      }
+    }
+  }
+}

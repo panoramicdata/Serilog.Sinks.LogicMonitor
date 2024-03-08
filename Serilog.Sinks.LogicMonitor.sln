@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29613.14
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34622.214
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Serilog.Sinks.LogicMonitor.Tests", "Serilog.Sinks.LogicMonitor.Tests\Serilog.Sinks.LogicMonitor.Tests.csproj", "{0BABE88C-2115-4CA4-A834-FE1DE6A757EF}"
 EndProject
@@ -18,6 +18,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 		version.json = version.json
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Serilog.Sinks.LogicMonitor.ExampleConsole", "Serilog.Sinks.LogicMonitor.ExampleConsole\Serilog.Sinks.LogicMonitor.ExampleConsole.csproj", "{142E5439-77E7-4634-8EA6-E20279C0614B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -37,6 +39,10 @@ Global
 		{FA40B83B-CEAE-466C-8775-460A3865D617}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FA40B83B-CEAE-466C-8775-460A3865D617}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FA40B83B-CEAE-466C-8775-460A3865D617}.Release|Any CPU.Build.0 = Release|Any CPU
+		{142E5439-77E7-4634-8EA6-E20279C0614B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{142E5439-77E7-4634-8EA6-E20279C0614B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{142E5439-77E7-4634-8EA6-E20279C0614B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{142E5439-77E7-4634-8EA6-E20279C0614B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -70,7 +70,7 @@ namespace Serilog.Sinks.LogicMonitor
 		/// </summary>
 		/// <param name="sinkConfiguration">The logger configuration.</param>
 		/// <param name="logicmonitorClientOptions">The LogicMonitor client options.</param>
-		/// <param name="resourceDiplayName">The resource display name.</param>
+		/// <param name="resourceDisplayName">The resource display name.</param>
 		/// <param name="fieldOptions">Field writers</param>
 		/// <param name="restrictedToMinimumLevel">The minimum log event level required in order to write an event to the sink.</param>
 		/// <param name="period">The time to wait between checking for event batches.</param>
@@ -80,7 +80,7 @@ namespace Serilog.Sinks.LogicMonitor
 		/// <returns>Logger configuration, allowing configuration to continue.</returns>
 		public static LoggerConfiguration LogicMonitor(this LoggerSinkConfiguration sinkConfiguration,
 			 LogicMonitorClientOptions logicmonitorClientOptions,
-			 string resourceDiplayName,
+			 string resourceDisplayName,
 			 IDictionary<string, FieldWriterBase>? fieldOptions = null,
 			 LogEventLevel restrictedToMinimumLevel = LevelAlias.Minimum,
 			 TimeSpan? period = null,
@@ -99,15 +99,21 @@ namespace Serilog.Sinks.LogicMonitor
 				throw new ArgumentNullException(nameof(logicmonitorClientOptions));
 			}
 
-			if (resourceDiplayName is null)
+			if (resourceDisplayName is null)
 			{
-				throw new ArgumentNullException(nameof(resourceDiplayName));
+				throw new ArgumentNullException(nameof(resourceDisplayName));
+			}
+
+			// Swap out the hostname
+			foreach (var env in new string[] { "HOSTNAME" })
+			{
+				resourceDisplayName = resourceDisplayName.Replace($"{{EnvironmentVariable:{env}}}", Environment.GetEnvironmentVariable(env));
 			}
 
 			period ??= DefaultPeriod;
 
 			var lmSink = new LogicMonitorSink(logicmonitorClientOptions,
-				resourceDiplayName,
+				resourceDisplayName,
 				period.Value,
 				formatProvider,
 				fieldOptions,
