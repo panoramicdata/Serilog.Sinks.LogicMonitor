@@ -14,22 +14,10 @@ namespace Serilog.Sinks.LogicMonitor.IntegrationTests
 			var testObject = new TestObjectType1 { IntProp = 42, StringProp = "Test" };
 			var testObj2 = new TestObjectType2 { DateProp1 = DateTime.Now, NestedProp = testObject };
 
-			var fieldProperties = new Dictionary<string, FieldWriterBase>
-				{
-					{"message", new RenderedMessageFieldWriter() },
-					{"message_template", new MessageTemplateFieldWriter() },
-					{"level", new LevelFieldWriter(true) },
-					{"raise_date", new TimestampFieldWriter() },
-					{"exception", new ExceptionFieldWriter() },
-					{"properties", new LogEventSerializedFieldWriter() },
-					{"props_test", new PropertiesFieldWriter() },
-					{"machine_name", new SinglePropertyFieldWriter("MachineName") }
-				};
-
 			using var logger = new LoggerConfiguration().WriteTo.LogicMonitor(
 				LogicMonitorClientOptions,
 				DeviceId,
-				fieldProperties
+				FieldProperties
 			)
 				.Enrich
 				.WithMachineName()
@@ -46,22 +34,10 @@ namespace Serilog.Sinks.LogicMonitor.IntegrationTests
 			var testObject = new TestObjectType1 { IntProp = 42, StringProp = "Test" };
 			var testObj2 = new TestObjectType2 { DateProp1 = DateTime.Now, NestedProp = testObject };
 
-			var fieldProperties = new Dictionary<string, FieldWriterBase>
-				{
-					{"message", new RenderedMessageFieldWriter() },
-					{"message_template", new MessageTemplateFieldWriter() },
-					{"level", new LevelFieldWriter(true) },
-					{"raise_date", new TimestampFieldWriter() },
-					{"exception", new ExceptionFieldWriter() },
-					{"properties", new LogEventSerializedFieldWriter() },
-					{"props_test", new PropertiesFieldWriter() },
-					{"machine_name", new SinglePropertyFieldWriter("MachineName") }
-				};
-
 			using var logger = new LoggerConfiguration().WriteTo.LogicMonitor(
 				LogicMonitorClientOptions,
 				DeviceId,
-				fieldProperties
+				FieldProperties
 			)
 				.Enrich.WithMachineName()
 				.CreateLogger();
@@ -79,24 +55,11 @@ namespace Serilog.Sinks.LogicMonitor.IntegrationTests
 			var testObject = new TestObjectType1 { IntProp = 42, StringProp = "Test" };
 			var testObj2 = new TestObjectType2 { DateProp1 = DateTime.Now, NestedProp = testObject };
 
-			var fieldProperties = new Dictionary<string, FieldWriterBase>
-				{
-					{"message", new RenderedMessageFieldWriter() },
-					{"message_template", new MessageTemplateFieldWriter() },
-					{"level", new LevelFieldWriter(true) },
-					{"raise_date", new TimestampFieldWriter() },
-					{"exception", new ExceptionFieldWriter() },
-					{"properties", new LogEventSerializedFieldWriter() },
-					{"props_test", new PropertiesFieldWriter() },
-					{"int_prop_test", new SinglePropertyFieldWriter("testNo", format: "l") },
-					{"machine_name", new SinglePropertyFieldWriter("MachineName", format: "l") }
-				};
-
 			var logger =
 				new LoggerConfiguration().WriteTo.LogicMonitor(
 					LogicMonitorClientOptions,
 					DeviceId,
-					fieldProperties)
+					FieldProperties)
 				.Enrich.WithMachineName()
 				.CreateLogger();
 

@@ -32,7 +32,7 @@
 		  <PrivateAssets>all</PrivateAssets>
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="LogicMonitor.Api" Version="3.198.10" />
+		<PackageReference Include="LogicMonitor.Api" Version="3.201.1" />
 		<PackageReference Include="Serilog" Version="3.1.1" />
 		<PackageReference Include="Serilog.Sinks.PeriodicBatching" Version="3.1.0" />
 	</ItemGroup>
