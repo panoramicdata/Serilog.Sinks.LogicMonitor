@@ -84,7 +84,9 @@ namespace Serilog.Sinks.LogicMonitor.IntegrationTests
 			// Get the "cmdb.id" custom property from the device
 			var customProperty = device
 				.CustomProperties
-				.FirstOrDefault(cp => cp.Name == "cmdb.id");
+				.FirstOrDefault(cp => cp.Name == "cmdb.id")
+				?? throw new FormatException($"Resource {device.DisplayName} is missing the cmdb.id custom property needed for this unit test.");
+
 
 			var propertyDictionary = new Dictionary<string, string>
 			{
