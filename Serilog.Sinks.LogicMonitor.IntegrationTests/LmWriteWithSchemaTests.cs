@@ -31,7 +31,8 @@ namespace Serilog.Sinks.LogicMonitor.IntegrationTests
 				DeviceId,
 				fieldProperties
 			)
-				.Enrich.WithMachineName()
+				.Enrich
+				.WithMachineName()
 				.CreateLogger();
 
 			logger.Error("Error Writing Test: {@testObject} test2: {@testObj2}", testObject, testObj2);

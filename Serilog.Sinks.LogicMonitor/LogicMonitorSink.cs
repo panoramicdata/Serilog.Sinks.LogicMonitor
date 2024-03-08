@@ -72,16 +72,7 @@ namespace Serilog.Sinks.LogicMonitor
 			_ = await logicMonitorClient
 				.WriteLogAsync(
 					logEventBatch.Select(logEvent => new WriteLogRequest(
-						logEvent.Level switch
-						{
-							LogEventLevel.Fatal => WriteLogLevel.Error,
-							LogEventLevel.Error => WriteLogLevel.Error,
-							LogEventLevel.Warning => WriteLogLevel.Warning,
-							LogEventLevel.Information => WriteLogLevel.Info,
-							LogEventLevel.Debug => WriteLogLevel.Debug,
-							LogEventLevel.Verbose => WriteLogLevel.Debug,
-							_ => WriteLogLevel.Info
-						},
+						GetWriteLogLevel(logEvent),
 						_deviceId,
 						logEvent.RenderMessage(_formatProvider))),
 					cancellationToken: default
@@ -89,11 +80,32 @@ namespace Serilog.Sinks.LogicMonitor
 				.ConfigureAwait(false);
 		}
 
+		private static WriteLogLevel GetWriteLogLevel(LogEvent logEvent) => logEvent.Level switch
+		{
+			LogEventLevel.Fatal => WriteLogLevel.Error,
+			LogEventLevel.Error => WriteLogLevel.Error,
+			LogEventLevel.Warning => WriteLogLevel.Warning,
+			LogEventLevel.Information => WriteLogLevel.Info,
+			LogEventLevel.Debug => WriteLogLevel.Debug,
+			LogEventLevel.Verbose => WriteLogLevel.Debug,
+			_ => WriteLogLevel.Info
+		};
 		public Task OnEmptyBatchAsync() => Task.CompletedTask;
 
 		public void Emit(LogEvent logEvent)
 		{
-
+			using var logicMonitorClient = new LogicMonitorClient(_logicMonitorClientOptions);
+			// Write to LogicMonitor
+			_ = logicMonitorClient
+				.WriteLogAsync(
+					[new WriteLogRequest(
+						GetWriteLogLevel(logEvent),
+						_deviceId,
+						logEvent.RenderMessage(_formatProvider))],
+					cancellationToken: default
+				)
+				.GetAwaiter()
+				.GetResult();
 		}
 	}
 }
