@@ -17,9 +17,9 @@
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<Copyright>Copyright © Panoramic Data Limited 2011-2024</Copyright>
 		<PackageTags>Serilog Sink LogicMonitor</PackageTags>
-		<PackageReleaseNotes>Updated to .NET 8.0 / C#12.  Updated nuget packages.  Moved to LogicMonitor API v3.  Updated version to reflect LogicMonitor.Api version.</PackageReleaseNotes>
 		<LangVersion>latest</LangVersion>
 		<Nullable>enable</Nullable>
+		<PackageReleaseNotes>Updated to .NET 8.0 / C#12.  Updated nuget packages.  Moved to LogicMonitor API v3.  Updated version to reflect LogicMonitor.Api version.</PackageReleaseNotes>
 	</PropertyGroup>
 
 	<ItemGroup>
