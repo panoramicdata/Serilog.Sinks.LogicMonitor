@@ -88,8 +88,8 @@ namespace Serilog.Sinks.LogicMonitor.IntegrationTests
 
 			var propertyDictionary = new Dictionary<string, string>
 			{
-				{ "deviceId", device.Id.ToString(CultureInfo.InvariantCulture) },
-				{ "displayname", device.DisplayName },
+				{ "system.deviceId", device.Id.ToString(CultureInfo.InvariantCulture) },
+				{ "system.displayname", device.DisplayName },
 				{ "cmdb.id", customProperty.Value }
 			};
 
