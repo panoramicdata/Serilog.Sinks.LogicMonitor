@@ -2,6 +2,7 @@
 using Serilog.Configuration;
 using Serilog.Core;
 using Serilog.Events;
+using Serilog.Sinks.PeriodicBatching;
 using System;
 using System.Collections.Generic;
 
@@ -35,6 +36,7 @@ namespace Serilog.Sinks.LogicMonitor
 			 TimeSpan? period = null,
 			 IFormatProvider? formatProvider = null,
 			 int batchSizeLimit = LogicMonitorSink.DefaultBatchSizeLimit,
+			 int queueLimit = LogicMonitorSink.DefaultQueueLimit,
 			 LoggingLevelSwitch? levelSwitch = null
 			)
 		{
@@ -53,16 +55,22 @@ namespace Serilog.Sinks.LogicMonitor
 				throw new ArgumentOutOfRangeException(nameof(resourceId), "Should be greater than 0.");
 			}
 
-			period ??= DefaultPeriod;
+			;
 
-			var lmSink = new LogicMonitorSink(logicmonitorClientOptions,
+			var batchingOptions = new PeriodicBatchingSinkOptions
+			{
+				BatchSizeLimit = batchSizeLimit,
+				Period = period ?? DefaultPeriod,
+				EagerlyEmitFirstEvent = true,
+				QueueLimit = queueLimit
+			};
+			var lmSink = new LogicMonitorSink(
+				logicmonitorClientOptions,
 				resourceId,
-				period.Value,
-				formatProvider,
-				fieldOptions,
-				batchSizeLimit);
-
-			return sinkConfiguration.Sink(lmSink, restrictedToMinimumLevel, levelSwitch);
+				formatProvider: formatProvider,
+				fieldOptions: fieldOptions);
+			var batchingSink = new PeriodicBatchingSink(lmSink, batchingOptions);
+			return sinkConfiguration.Sink(batchingSink, restrictedToMinimumLevel, levelSwitch);
 		}
 
 		/// <summary>
@@ -86,6 +94,7 @@ namespace Serilog.Sinks.LogicMonitor
 			 TimeSpan? period = null,
 			 IFormatProvider? formatProvider = null,
 			 int batchSizeLimit = LogicMonitorSink.DefaultBatchSizeLimit,
+			 int queueLimit = LogicMonitorSink.DefaultQueueLimit,
 			 LoggingLevelSwitch? levelSwitch = null
 			)
 		{
@@ -110,16 +119,20 @@ namespace Serilog.Sinks.LogicMonitor
 				resourceDisplayName = resourceDisplayName.Replace($"{{EnvironmentVariable:{env}}}", Environment.GetEnvironmentVariable(env));
 			}
 
-			period ??= DefaultPeriod;
-
-			var lmSink = new LogicMonitorSink(logicmonitorClientOptions,
+			var batchingOptions = new PeriodicBatchingSinkOptions
+			{
+				BatchSizeLimit = batchSizeLimit,
+				Period = period ?? DefaultPeriod,
+				EagerlyEmitFirstEvent = true,
+				QueueLimit = queueLimit
+			};
+			var lmSink = new LogicMonitorSink(
+				logicmonitorClientOptions,
 				resourceDisplayName,
-				period.Value,
-				formatProvider,
-				fieldOptions,
-				batchSizeLimit);
-
-			return sinkConfiguration.Sink(lmSink, restrictedToMinimumLevel, levelSwitch);
+				formatProvider: formatProvider,
+				fieldOptions: fieldOptions);
+			var batchingSink = new PeriodicBatchingSink(lmSink, batchingOptions);
+			return sinkConfiguration.Sink(batchingSink, restrictedToMinimumLevel, levelSwitch);
 		}
 
 		/// <summary>
@@ -147,6 +160,7 @@ namespace Serilog.Sinks.LogicMonitor
 			 TimeSpan? period = null,
 			 IFormatProvider? formatProvider = null,
 			 int batchSizeLimit = LogicMonitorSink.DefaultBatchSizeLimit,
+			 int queueLimit = LogicMonitorSink.DefaultQueueLimit,
 			 LoggingLevelSwitch? levelSwitch = null
 			)
 		{
@@ -170,17 +184,21 @@ namespace Serilog.Sinks.LogicMonitor
 				throw new ArgumentNullException(nameof(customPropertyValue));
 			}
 
-			period ??= DefaultPeriod;
-
-			var lmSink = new LogicMonitorSink(logicmonitorClientOptions,
+			var batchingOptions = new PeriodicBatchingSinkOptions
+			{
+				BatchSizeLimit = batchSizeLimit,
+				Period = period ?? DefaultPeriod,
+				EagerlyEmitFirstEvent = true,
+				QueueLimit = queueLimit
+			};
+			var lmSink = new LogicMonitorSink(
+				logicmonitorClientOptions,
 				customPropertyName,
 				customPropertyValue,
-				period.Value,
-				formatProvider,
-				fieldOptions,
-				batchSizeLimit);
-
-			return sinkConfiguration.Sink(lmSink, restrictedToMinimumLevel, levelSwitch);
+				formatProvider: formatProvider,
+				fieldOptions: fieldOptions);
+			var batchingSink = new PeriodicBatchingSink(lmSink, batchingOptions);
+			return sinkConfiguration.Sink(batchingSink, restrictedToMinimumLevel, levelSwitch);
 		}
 
 
@@ -205,6 +223,7 @@ namespace Serilog.Sinks.LogicMonitor
 			 TimeSpan? period = null,
 			 IFormatProvider? formatProvider = null,
 			 int batchSizeLimit = LogicMonitorSink.DefaultBatchSizeLimit,
+			 int queueLimit = LogicMonitorSink.DefaultQueueLimit,
 			 LoggingLevelSwitch? levelSwitch = null
 			)
 		{
@@ -223,16 +242,16 @@ namespace Serilog.Sinks.LogicMonitor
 				throw new ArgumentNullException(nameof(propertyDictionary));
 			}
 
-			period ??= DefaultPeriod;
-
-			var lmSink = new LogicMonitorSink(logicmonitorClientOptions,
-				propertyDictionary,
-				period.Value,
-				formatProvider,
-				fieldOptions,
-				batchSizeLimit);
-
-			return sinkConfiguration.Sink(lmSink, restrictedToMinimumLevel, levelSwitch);
+			var batchingOptions = new PeriodicBatchingSinkOptions
+			{
+				BatchSizeLimit = batchSizeLimit,
+				Period = period ?? DefaultPeriod,
+				EagerlyEmitFirstEvent = true,
+				QueueLimit = queueLimit
+			};
+			var lmSink = new LogicMonitorSink(logicmonitorClientOptions, propertyDictionary, formatProvider: formatProvider, fieldOptions: fieldOptions);
+			var batchingSink = new PeriodicBatchingSink(lmSink, batchingOptions);
+			return sinkConfiguration.Sink(batchingSink, restrictedToMinimumLevel, levelSwitch);
 		}
 	}
 }

@@ -1,6 +1,5 @@
 ﻿using LogicMonitor.Api;
 using LogicMonitor.Api.Logging;
-using Serilog.Core;
 using Serilog.Events;
 using Serilog.Sinks.PeriodicBatching;
 using System;
@@ -10,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Serilog.Sinks.LogicMonitor
 {
-	public class LogicMonitorSink : IBatchedLogEventSink, ILogEventSink
+	public class LogicMonitorSink : IBatchedLogEventSink, IDisposable
 	{
 		private readonly LogicMonitorClientOptions _logicMonitorClientOptions;
 		private readonly Dictionary<string, string>? _propertyDictionary;
@@ -18,98 +17,78 @@ namespace Serilog.Sinks.LogicMonitor
 		private readonly string? _customPropertyValue;
 		private readonly string? _deviceDisplayName;
 		private readonly int? _deviceId;
-		private readonly TimeSpan _period;
 		private readonly IDictionary<string, FieldWriterBase>? _fieldOptions;
-		private readonly int _batchSizeLimit;
-		private readonly int _queueLimit;
 		private readonly WriteMethod _writeMethod;
 		private readonly IFormatProvider? _formatProvider;
-
+		private bool disposedValue;
 		public const int DefaultBatchSizeLimit = 30;
 		public const int DefaultQueueLimit = int.MaxValue;
 
 		public LogicMonitorSink(LogicMonitorClientOptions logicMonitorClientOptions,
 			int deviceId,
-			TimeSpan period,
 			IFormatProvider? formatProvider = null,
-			IDictionary<string, FieldWriterBase>? fieldOptions = null,
-			int batchSizeLimit = DefaultBatchSizeLimit,
-			int queueLimit = DefaultQueueLimit)
+			IDictionary<string, FieldWriterBase>? fieldOptions = null
+			) : this(logicMonitorClientOptions,
+				formatProvider,
+				fieldOptions
+			)
 		{
-			_logicMonitorClientOptions = logicMonitorClientOptions ?? throw new ArgumentNullException(nameof(logicMonitorClientOptions));
 			if (deviceId <= 0)
 			{
 				throw new ArgumentOutOfRangeException(nameof(deviceId), "Should be greater than 0.");
 			}
 
 			_deviceId = deviceId;
-			_period = period;
-			_formatProvider = formatProvider;
-			_fieldOptions = fieldOptions ?? FieldOptions.Default;
-			_batchSizeLimit = batchSizeLimit;
-			_queueLimit = queueLimit;
 			_writeMethod = WriteMethod.DeviceId;
 		}
 
 		public LogicMonitorSink(LogicMonitorClientOptions logicMonitorClientOptions,
-			string deviceDisplayName,
-			TimeSpan period,
+			string resourceDisplayName,
 			IFormatProvider? formatProvider = null,
-			IDictionary<string, FieldWriterBase>? fieldOptions = null,
-			int batchSizeLimit = DefaultBatchSizeLimit,
-			int queueLimit = DefaultQueueLimit)
+			IDictionary<string, FieldWriterBase>? fieldOptions = null) : this(logicMonitorClientOptions,
+				formatProvider,
+				fieldOptions
+			)
 		{
-			_logicMonitorClientOptions = logicMonitorClientOptions
-				?? throw new ArgumentNullException(nameof(logicMonitorClientOptions));
-
-			_deviceDisplayName = deviceDisplayName;
-			_period = period;
-			_formatProvider = formatProvider;
-			_fieldOptions = fieldOptions ?? FieldOptions.Default;
-			_batchSizeLimit = batchSizeLimit;
-			_queueLimit = queueLimit;
+			_deviceDisplayName = resourceDisplayName;
 			_writeMethod = WriteMethod.DeviceDisplayName;
 		}
 
 		public LogicMonitorSink(LogicMonitorClientOptions logicMonitorClientOptions,
 			string customPropertyName,
 			string customPropertyValue,
-			TimeSpan period,
 			IFormatProvider? formatProvider = null,
-			IDictionary<string, FieldWriterBase>? fieldOptions = null,
-			int batchSizeLimit = DefaultBatchSizeLimit,
-			int queueLimit = DefaultQueueLimit)
+			IDictionary<string, FieldWriterBase>? fieldOptions = null
+) : this(logicMonitorClientOptions,
+				formatProvider,
+				fieldOptions
+			)
 		{
-			_logicMonitorClientOptions = logicMonitorClientOptions
-				?? throw new ArgumentNullException(nameof(logicMonitorClientOptions));
 			_customPropertyName = customPropertyName;
 			_customPropertyValue = customPropertyValue;
-			_period = period;
-			_formatProvider = formatProvider;
-			_fieldOptions = fieldOptions ?? FieldOptions.Default;
-			_batchSizeLimit = batchSizeLimit;
-			_queueLimit = queueLimit;
 			_writeMethod = WriteMethod.CustomProperty;
 		}
 
 		public LogicMonitorSink(LogicMonitorClientOptions logicMonitorClientOptions,
 			Dictionary<string, string> propertyDictionary,
-			TimeSpan period,
 			IFormatProvider? formatProvider = null,
-			IDictionary<string, FieldWriterBase>? fieldOptions = null,
-			int batchSizeLimit = DefaultBatchSizeLimit,
-			int queueLimit = DefaultQueueLimit)
+			IDictionary<string, FieldWriterBase>? fieldOptions = null
+) : this(logicMonitorClientOptions,
+				formatProvider,
+				fieldOptions
+			)
 		{
-			_logicMonitorClientOptions = logicMonitorClientOptions
-				?? throw new ArgumentNullException(nameof(logicMonitorClientOptions));
-			_propertyDictionary = propertyDictionary
-				?? throw new ArgumentNullException(nameof(propertyDictionary));
-			_period = period;
+			_propertyDictionary = propertyDictionary ?? throw new ArgumentNullException(nameof(propertyDictionary));
+			_writeMethod = WriteMethod.PropertyDictionary;
+		}
+
+		private LogicMonitorSink(LogicMonitorClientOptions logicMonitorClientOptions,
+			IFormatProvider? formatProvider,
+			IDictionary<string, FieldWriterBase>? fieldOptions)
+		{
+			_logicMonitorClientOptions = logicMonitorClientOptions ?? throw new ArgumentNullException(nameof(logicMonitorClientOptions));
 			_formatProvider = formatProvider;
 			_fieldOptions = fieldOptions ?? FieldOptions.Default;
-			_batchSizeLimit = batchSizeLimit;
-			_queueLimit = queueLimit;
-			_writeMethod = WriteMethod.PropertyDictionary;
 		}
 
 		public async Task EmitBatchAsync(IEnumerable<LogEvent> logEventBatch)
@@ -175,14 +154,41 @@ namespace Serilog.Sinks.LogicMonitor
 
 		public Task OnEmptyBatchAsync() => Task.CompletedTask;
 
-		public void Emit(LogEvent logEvent) => EmitBatchAsync([logEvent]).GetAwaiter().GetResult();
-
 		private enum WriteMethod
 		{
 			DeviceId,
 			DeviceDisplayName,
 			CustomProperty,
 			PropertyDictionary
+		}
+
+		protected virtual void Dispose(bool disposing)
+		{
+			if (!disposedValue)
+			{
+				if (disposing)
+				{
+					// TODO: dispose managed state (managed objects)
+				}
+
+				// TODO: free unmanaged resources (unmanaged objects) and override finalizer
+				// TODO: set large fields to null
+				disposedValue = true;
+			}
+		}
+
+		// // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
+		// ~LogicMonitorSink()
+		// {
+		//     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+		//     Dispose(disposing: false);
+		// }
+
+		public void Dispose()
+		{
+			// Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+			Dispose(disposing: true);
+			GC.SuppressFinalize(this);
 		}
 	}
 }
