@@ -11,7 +11,6 @@ namespace Serilog.Sinks.LogicMonitor
 {
 	public class LogicMonitorSink : IBatchedLogEventSink, IDisposable
 	{
-		private readonly LogicMonitorClientOptions _logicMonitorClientOptions;
 		private readonly Dictionary<string, string>? _propertyDictionary;
 		private readonly string? _customPropertyName;
 		private readonly string? _customPropertyValue;
@@ -83,14 +82,19 @@ namespace Serilog.Sinks.LogicMonitor
 			_writeMethod = WriteMethod.PropertyDictionary;
 		}
 
-		private LogicMonitorSink(LogicMonitorClientOptions logicMonitorClientOptions,
+		private LogicMonitorSink(
+			LogicMonitorClientOptions logicMonitorClientOptions,
 			IFormatProvider? formatProvider,
 			IDictionary<string, FieldWriterBase>? fieldOptions)
 		{
-			_logicMonitorClientOptions = logicMonitorClientOptions ?? throw new ArgumentNullException(nameof(logicMonitorClientOptions));
+			if (logicMonitorClientOptions is null)
+			{
+				throw new ArgumentNullException(nameof(logicMonitorClientOptions));
+			}
+
 			_formatProvider = formatProvider;
 			_fieldOptions = fieldOptions ?? FieldOptions.Default;
-			_logicMonitorClient = new LogicMonitorClient(_logicMonitorClientOptions);
+			_logicMonitorClient = new LogicMonitorClient(logicMonitorClientOptions);
 		}
 
 		public async Task EmitBatchAsync(IEnumerable<LogEvent> logEventBatch)
