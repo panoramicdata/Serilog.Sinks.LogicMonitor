@@ -18,6 +18,7 @@ namespace Serilog.Sinks.LogicMonitor
 		private readonly string? _deviceDisplayName;
 		private readonly int? _deviceId;
 		private readonly IDictionary<string, FieldWriterBase>? _fieldOptions;
+		private readonly LogicMonitorClient _logicMonitorClient;
 		private readonly WriteMethod _writeMethod;
 		private readonly IFormatProvider? _formatProvider;
 		private bool disposedValue;
@@ -89,16 +90,14 @@ namespace Serilog.Sinks.LogicMonitor
 			_logicMonitorClientOptions = logicMonitorClientOptions ?? throw new ArgumentNullException(nameof(logicMonitorClientOptions));
 			_formatProvider = formatProvider;
 			_fieldOptions = fieldOptions ?? FieldOptions.Default;
+			_logicMonitorClient = new LogicMonitorClient(_logicMonitorClientOptions);
 		}
 
 		public async Task EmitBatchAsync(IEnumerable<LogEvent> logEventBatch)
 		{
-			using var logicMonitorClient = new LogicMonitorClient(_logicMonitorClientOptions);
-			// Write to LogicMonitor
-
 			_ = _writeMethod switch
 			{
-				WriteMethod.DeviceId => await logicMonitorClient
+				WriteMethod.DeviceId => await _logicMonitorClient
 					.WriteLogAsync(
 						logEventBatch.Select(logEvent => new WriteLogRequest(
 								GetWriteLogLevel(logEvent),
@@ -108,7 +107,7 @@ namespace Serilog.Sinks.LogicMonitor
 						),
 						cancellationToken: default
 				).ConfigureAwait(false),
-				WriteMethod.DeviceDisplayName => await logicMonitorClient
+				WriteMethod.DeviceDisplayName => await _logicMonitorClient
 					.WriteLogAsync(
 						logEventBatch.Select(logEvent => new WriteLogRequest(
 						GetWriteLogLevel(logEvent),
@@ -118,7 +117,7 @@ namespace Serilog.Sinks.LogicMonitor
 				),
 				cancellationToken: default
 				).ConfigureAwait(false),
-				WriteMethod.CustomProperty => await logicMonitorClient
+				WriteMethod.CustomProperty => await _logicMonitorClient
 					.WriteLogAsync(
 						logEventBatch.Select(logEvent => new WriteLogRequest(
 						GetWriteLogLevel(logEvent),
@@ -128,7 +127,7 @@ namespace Serilog.Sinks.LogicMonitor
 					)),
 					cancellationToken: default
 				).ConfigureAwait(false),
-				WriteMethod.PropertyDictionary => await logicMonitorClient
+				WriteMethod.PropertyDictionary => await _logicMonitorClient
 					.WriteLogAsync(
 						logEventBatch.Select(logEvent => new WriteLogRequest(
 							GetWriteLogLevel(logEvent),
@@ -168,21 +167,12 @@ namespace Serilog.Sinks.LogicMonitor
 			{
 				if (disposing)
 				{
-					// TODO: dispose managed state (managed objects)
+					_logicMonitorClient?.Dispose();
 				}
 
-				// TODO: free unmanaged resources (unmanaged objects) and override finalizer
-				// TODO: set large fields to null
 				disposedValue = true;
 			}
 		}
-
-		// // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
-		// ~LogicMonitorSink()
-		// {
-		//     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-		//     Dispose(disposing: false);
-		// }
 
 		public void Dispose()
 		{
