@@ -2,7 +2,7 @@
 
 	<PropertyGroup>
 		<TargetFramework>netstandard2.0</TargetFramework>
-		<Description>Serilog sink for LogicMonitor</Description>
+		<Description>Serilog sink for LogicMonitor's LM Logs</Description>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<PackageId>Serilog.Sinks.LogicMonitor</PackageId>
 		<Company>Panoramic Data Limited</Company>
