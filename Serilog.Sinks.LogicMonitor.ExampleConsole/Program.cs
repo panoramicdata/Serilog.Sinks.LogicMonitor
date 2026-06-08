@@ -1,15 +1,20 @@
-﻿// Use IHostBuilder to configure Serilog and LogicMonitorSink
+﻿using Microsoft.Extensions.Configuration;
 
-using Microsoft.Extensions.Configuration;
-using Serilog;
+namespace Serilog.Sinks.LogicMonitor.ExampleConsole;
 
+/// <summary>
+/// Example console entry point for exercising the LogicMonitor sink.
+/// </summary>
 public class Program
 {
-	public static void Main(string[] args)
+	/// <summary>
+	/// Application entry point.
+	/// </summary>
+	public static void Main()
 	{
 		var basePath = Directory.GetCurrentDirectory();
 		var fileInfo = new FileInfo(Path.Combine(basePath, "../../../appsettings.json"));
-		var fileExists = fileInfo.Exists;
+
 		var configuration = new ConfigurationBuilder()
 			.SetBasePath(basePath)
 			.AddJsonFile(fileInfo.FullName)

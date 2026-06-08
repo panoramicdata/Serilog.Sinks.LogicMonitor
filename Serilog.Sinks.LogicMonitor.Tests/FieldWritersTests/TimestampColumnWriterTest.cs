@@ -1,35 +1,36 @@
-using FluentAssertions;
-using Serilog.Events;
-using Serilog.Parsing;
-using System;
-using System.Linq;
-using Xunit;
+namespace Serilog.Sinks.LogicMonitor.Tests.FieldWritersTests;
 
-namespace Serilog.Sinks.LogicMonitor.Tests.FieldWritersTests
+/// <summary>
+/// Tests for <see cref="TimestampFieldWriter"/>.
+/// </summary>
+public class TimestampColumnWriterTest
 {
-	public class TimestampColumnWriterTest
+	/// <summary>
+	/// Verifies timestamp values are returned unchanged by default.
+	/// </summary>
+	[Fact]
+	public void ByDefault_ShouldReturnTimestampValueWithoutTimezone()
 	{
-		[Fact]
-		public void ByDefault_ShouldReturnTimestampValueWithoutTimezone()
-		{
-			var writer = new TimestampFieldWriter();
-			var timeStamp = new DateTimeOffset(2017, 8, 13, 11, 11, 11, new TimeSpan());
-			var testEvent = new LogEvent(timeStamp, LogEventLevel.Debug, null, new MessageTemplate(Enumerable.Empty<MessageTemplateToken>()), Enumerable.Empty<LogEventProperty>());
-			var result = writer.GetValue(testEvent);
+		var writer = new TimestampFieldWriter();
+		var timeStamp = new DateTimeOffset(2017, 8, 13, 11, 11, 11, new TimeSpan());
+		var testEvent = new LogEvent(timeStamp, LogEventLevel.Debug, null, new MessageTemplate([]), []);
+		var result = writer.GetValue(testEvent);
 
-			result.Should().Be(timeStamp);
-		}
+		result.Should().Be(timeStamp);
+	}
 
-		[Fact]
-		public void DbTypeWithTimezoneSelected_ShouldReturnTimestampValue()
-		{
-			var writer = new TimestampFieldWriter();
-			var timeStamp = new DateTimeOffset(2017, 8, 13, 11, 11, 11, new TimeSpan());
-			var testEvent = new LogEvent(timeStamp, LogEventLevel.Debug, null, new MessageTemplate(Enumerable.Empty<MessageTemplateToken>()), Enumerable.Empty<LogEventProperty>());
+	/// <summary>
+	/// Verifies timestamp values are returned for timezone-aware scenarios.
+	/// </summary>
+	[Fact]
+	public void DbTypeWithTimezoneSelected_ShouldReturnTimestampValue()
+	{
+		var writer = new TimestampFieldWriter();
+		var timeStamp = new DateTimeOffset(2017, 8, 13, 11, 11, 11, new TimeSpan());
+		var testEvent = new LogEvent(timeStamp, LogEventLevel.Debug, null, new MessageTemplate([]), []);
 
-			var result = writer.GetValue(testEvent);
+		var result = writer.GetValue(testEvent);
 
-			result.Should().Be(timeStamp);
-		}
+		result.Should().Be(timeStamp);
 	}
 }

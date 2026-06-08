@@ -1,113 +1,128 @@
 ﻿using Serilog.Sinks.LogicMonitor.IntegrationTests.Objects;
-using System;
-using System.Collections.Generic;
-using Xunit;
-using Xunit.Abstractions;
 
-namespace Serilog.Sinks.LogicMonitor.IntegrationTests
+namespace Serilog.Sinks.LogicMonitor.IntegrationTests;
+
+/// <summary>
+/// Integration tests for writing log events with schema-aware configuration.
+/// </summary>
+/// <remarks>
+/// Initializes a new instance of the <see cref="LmWriteWithSchemaTests"/> class.
+/// </remarks>
+/// <param name="testOutputHelper">The test output helper.</param>
+public class LmWriteWithSchemaTests(ITestOutputHelper testOutputHelper) : BaseTest(testOutputHelper)
 {
-	public class LmWriteWithSchemaTests(ITestOutputHelper testOutputHelper) : BaseTest(testOutputHelper)
+
+	/// <summary>
+	/// Verifies that writing an error event succeeds.
+	/// </summary>
+	[Fact]
+	public void WriteAnErrorEvent_ShouldSucceed()
 	{
-		[Fact]
-		public void WriteAnErrorEvent_ShouldSucceed()
-		{
-			var testObject = new TestObjectType1 { IntProp = 42, StringProp = "Test" };
-			var testObj2 = new TestObjectType2 { DateProp1 = DateTime.Now, NestedProp = testObject };
+		var testObject = new TestObjectType1 { IntProp = 42, StringProp = "Test" };
+		var testObj2 = new TestObjectType2 { DateProp1 = DateTime.Now, NestedProp = testObject };
 
-			using var logger = new LoggerConfiguration().WriteTo.LogicMonitor(
+		using var logger = new LoggerConfiguration().WriteTo.LogicMonitor(
+			LogicMonitorClientOptions,
+			ResourceId,
+			FieldProperties
+		)
+			.Enrich
+			.WithMachineName()
+			.CreateLogger();
+
+		logger.Error("Error Writing Test: {@testObject} test2: {@testObj2}", testObject, testObj2);
+
+		// TODO - Test it worked
+	}
+
+	/// <summary>
+	/// Verifies that fifty events are inserted successfully.
+	/// </summary>
+	[Fact]
+	public void Write50Events_ShouldInsert50EventsToDb()
+	{
+		var testObject = new TestObjectType1 { IntProp = 42, StringProp = "Test" };
+		var testObj2 = new TestObjectType2 { DateProp1 = DateTime.Now, NestedProp = testObject };
+
+		using var logger = new LoggerConfiguration().WriteTo.LogicMonitor(
+			LogicMonitorClientOptions,
+			ResourceId,
+			FieldProperties
+		)
+			.Enrich.WithMachineName()
+			.CreateLogger();
+		for (var i = 0; i < 50; i++)
+		{
+			logger.Information("Test{testNo}: {@testObject} test2: {@testObj2}", i, testObject, testObj2);
+		}
+
+		// TODO - Test it worked
+	}
+
+	/// <summary>
+	/// Verifies that auto-creation creates the target table.
+	/// </summary>
+	[Fact]
+	public void AutoCreateTableIsTrue_ShouldCreateTable()
+	{
+		var testObject = new TestObjectType1 { IntProp = 42, StringProp = "Test" };
+		var testObj2 = new TestObjectType2 { DateProp1 = DateTime.Now, NestedProp = testObject };
+
+		var logger =
+			new LoggerConfiguration().WriteTo.LogicMonitor(
 				LogicMonitorClientOptions,
-				DeviceId,
-				FieldProperties
-			)
-				.Enrich
-				.WithMachineName()
-				.CreateLogger();
+				ResourceId,
+				FieldProperties)
+			.Enrich.WithMachineName()
+			.CreateLogger();
 
-			logger.Error("Error Writing Test: {@testObject} test2: {@testObj2}", testObject, testObj2);
-
-			// TODO - Test it worked
-		}
-
-		[Fact]
-		public void Write50Events_ShouldInsert50EventsToDb()
+		const int rowsCount = 50;
+		for (var i = 0; i < rowsCount; i++)
 		{
-			var testObject = new TestObjectType1 { IntProp = 42, StringProp = "Test" };
-			var testObj2 = new TestObjectType2 { DateProp1 = DateTime.Now, NestedProp = testObject };
-
-			using var logger = new LoggerConfiguration().WriteTo.LogicMonitor(
-				LogicMonitorClientOptions,
-				DeviceId,
-				FieldProperties
-			)
-				.Enrich.WithMachineName()
-				.CreateLogger();
-			for (var i = 0; i < 50; i++)
-			{
-				logger.Information("Test{testNo}: {@testObject} test2: {@testObj2}", i, testObject, testObj2);
-			}
-
-			// TODO - Test it worked
+			logger.Information("Test{testNo}: {@testObject} test2: {@testObj2} testStr: {@testStr:l}", i, testObject, testObj2, "stringValue");
 		}
 
-		[Fact]
-		public void AutoCreateTableIsTrue_ShouldCreateTable()
+		logger.Dispose();
+
+		// TODO - Check is actually worked
+	}
+
+	/// <summary>
+	/// Verifies table and column handling when names differ by case.
+	/// </summary>
+	[Fact]
+	public void ColumnsAndTableWithDifferentCaseName_ShouldCreateTableAndInsertEvents()
+	{
+		var testObject = new TestObjectType1 { IntProp = 42, StringProp = "Test" };
+		var testObj2 = new TestObjectType2 { DateProp1 = DateTime.Now, NestedProp = testObject };
+
+		var fieldProperties = new Dictionary<string, FieldWriterBase>
+			{
+				{"Message", new RenderedMessageFieldWriter() },
+				{"MessageTemplate", new MessageTemplateFieldWriter() },
+				{"Level", new LevelFieldWriter(true) },
+				{"RaiseDate", new TimestampFieldWriter() },
+				{"\"Exception\"", new ExceptionFieldWriter() },
+				{"Properties", new LogEventSerializedFieldWriter() },
+				{"PropsTest", new PropertiesFieldWriter() },
+				{"IntPropTest", new SinglePropertyFieldWriter("testNo", PropertyWriteMethod.Raw) },
+				{"MachineName", new SinglePropertyFieldWriter("MachineName", format: "l") }
+			};
+
+		const int rowsCount = 50;
+
+		using var logger = new LoggerConfiguration().WriteTo.LogicMonitor(
+			LogicMonitorClientOptions,
+			ResourceId,
+			fieldProperties
+		)
+			.Enrich.WithMachineName()
+			.CreateLogger();
+		for (var i = 0; i < rowsCount; i++)
 		{
-			var testObject = new TestObjectType1 { IntProp = 42, StringProp = "Test" };
-			var testObj2 = new TestObjectType2 { DateProp1 = DateTime.Now, NestedProp = testObject };
-
-			var logger =
-				new LoggerConfiguration().WriteTo.LogicMonitor(
-					LogicMonitorClientOptions,
-					DeviceId,
-					FieldProperties)
-				.Enrich.WithMachineName()
-				.CreateLogger();
-
-			const int rowsCount = 50;
-			for (var i = 0; i < rowsCount; i++)
-			{
-				logger.Information("Test{testNo}: {@testObject} test2: {@testObj2} testStr: {@testStr:l}", i, testObject, testObj2, "stringValue");
-			}
-
-			logger.Dispose();
-
-			// TODO - Check is actually worked
+			logger.Information("Test{testNo}: {@testObject} test2: {@testObj2} testStr: {@testStr:l}", i, testObject, testObj2, "stringValue");
 		}
 
-		[Fact]
-		public void ColumnsAndTableWithDifferentCaseName_ShouldCreateTableAndInsertEvents()
-		{
-			var testObject = new TestObjectType1 { IntProp = 42, StringProp = "Test" };
-			var testObj2 = new TestObjectType2 { DateProp1 = DateTime.Now, NestedProp = testObject };
-
-			var fieldProperties = new Dictionary<string, FieldWriterBase>
-				{
-					{"Message", new RenderedMessageFieldWriter() },
-					{"MessageTemplate", new MessageTemplateFieldWriter() },
-					{"Level", new LevelFieldWriter(true) },
-					{"RaiseDate", new TimestampFieldWriter() },
-					{"\"Exception\"", new ExceptionFieldWriter() },
-					{"Properties", new LogEventSerializedFieldWriter() },
-					{"PropsTest", new PropertiesFieldWriter() },
-					{"IntPropTest", new SinglePropertyFieldWriter("testNo", PropertyWriteMethod.Raw) },
-					{"MachineName", new SinglePropertyFieldWriter("MachineName", format: "l") }
-				};
-
-			const int rowsCount = 50;
-
-			using var logger = new LoggerConfiguration().WriteTo.LogicMonitor(
-				LogicMonitorClientOptions,
-				DeviceId,
-				fieldProperties
-			)
-				.Enrich.WithMachineName()
-				.CreateLogger();
-			for (var i = 0; i < rowsCount; i++)
-			{
-				logger.Information("Test{testNo}: {@testObject} test2: {@testObj2} testStr: {@testStr:l}", i, testObject, testObj2, "stringValue");
-			}
-
-			// TODO - Test this works
-		}
+		// TODO - Test this works
 	}
 }

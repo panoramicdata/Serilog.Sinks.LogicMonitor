@@ -168,3 +168,5 @@ WixInstallerApi*.wxs
 appsettings.json
 /Serilog.Sinks.LogicMonitor.IntegrationTests/appsettings.json
 /Serilog.Sinks.LogicMonitor.ExampleConsole/appsettings.json
+.vs/
+nuget-key.txt
