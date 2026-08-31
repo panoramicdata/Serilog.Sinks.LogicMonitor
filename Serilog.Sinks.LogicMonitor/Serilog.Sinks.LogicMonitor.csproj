@@ -9,10 +9,10 @@
     <Authors>Panoramic Data Limited</Authors>
     <Product>Serilog.Sinks.LogicMonitor</Product>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/panoramicdata/serilog.sinks.logicmonitor</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/panoramicdata/Serilog.Sinks.LogicMonitor</PackageProjectUrl>
     <PackageIcon>icon.png</PackageIcon>
     <PackageIconUrl />
-    <RepositoryUrl>https://github.com/panoramicdata/serilog.sinks.logicmonitor</RepositoryUrl>
+    <RepositoryUrl>https://github.com/panoramicdata/Serilog.Sinks.LogicMonitor</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <Copyright>Copyright © Panoramic Data Limited 2011-2026</Copyright>

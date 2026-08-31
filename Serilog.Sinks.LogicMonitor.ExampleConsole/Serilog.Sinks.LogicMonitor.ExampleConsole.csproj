@@ -7,7 +7,7 @@
 		<Nullable>enable</Nullable>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageId>Serilog.Sinks.LogicMonitor.ExampleConsole</PackageId>
-		<RepositoryUrl>https://github.com/panoramicdata/serilog.sinks.logicmonitor</RepositoryUrl>
+		<RepositoryUrl>https://github.com/panoramicdata/Serilog.Sinks.LogicMonitor</RepositoryUrl>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<IncludeSymbols>true</IncludeSymbols>

@@ -5,7 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageId>Serilog.Sinks.LogicMonitor.IntegrationTests</PackageId>
-    <RepositoryUrl>https://github.com/panoramicdata/serilog.sinks.logicmonitor</RepositoryUrl>
+    <RepositoryUrl>https://github.com/panoramicdata/Serilog.Sinks.LogicMonitor</RepositoryUrl>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <IncludeSymbols>true</IncludeSymbols>
