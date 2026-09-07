@@ -8,6 +8,7 @@
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageId>Serilog.Sinks.LogicMonitor.ExampleConsole</PackageId>
 		<RepositoryUrl>https://github.com/panoramicdata/Serilog.Sinks.LogicMonitor</RepositoryUrl>
+		<PackageProjectUrl>https://github.com/panoramicdata/Serilog.Sinks.LogicMonitor</PackageProjectUrl>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<IncludeSymbols>true</IncludeSymbols>
