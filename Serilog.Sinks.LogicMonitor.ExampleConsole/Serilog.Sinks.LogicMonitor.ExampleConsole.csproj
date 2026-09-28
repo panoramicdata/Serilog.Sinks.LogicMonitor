@@ -7,6 +7,8 @@
 		<Nullable>enable</Nullable>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageId>Serilog.Sinks.LogicMonitor.ExampleConsole</PackageId>
+		<!-- A sample or test project, never published. Packing it made CI fail NU5104 on prerelease (PR) builds. -->
+		<IsPackable>false</IsPackable>
 		<RepositoryUrl>https://github.com/panoramicdata/Serilog.Sinks.LogicMonitor</RepositoryUrl>
 		<PackageProjectUrl>https://github.com/panoramicdata/Serilog.Sinks.LogicMonitor</PackageProjectUrl>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
