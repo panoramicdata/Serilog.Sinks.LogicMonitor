@@ -28,7 +28,8 @@ jobs:
       run: dotnet build --configuration Release --no-restore
 
     - name: Test
-      run: dotnet test --configuration Release --no-build --verbosity normal
+      # Only the unit tests: IntegrationTests needs a live LogicMonitor portal, and CI has none.
+      run: dotnet test --project Serilog.Sinks.LogicMonitor.Tests/Serilog.Sinks.LogicMonitor.Tests.csproj --configuration Release --no-build --verbosity normal
 
     - name: Pack
       run: dotnet pack --configuration Release --no-build --output ./artifacts
