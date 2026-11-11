@@ -80,7 +80,7 @@ jobs:
     # directly (Microsoft.Testing.Extensions.CodeCoverage). On Linux it has no .exe extension.
     - name: Run unit tests with coverage
       run: >-
-        ./Serilog.Sinks.LogicMonitor.Tests/bin/Debug/net10.0/Serilog.Sinks.LogicMonitor.Tests
+        ./Serilog.Sinks.LogicMonitor.Tests/bin/Debug/net11.0/Serilog.Sinks.LogicMonitor.Tests
         --coverage
         --coverage-settings ${{ github.workspace }}/coverage.config
         --coverage-output-format cobertura
@@ -93,7 +93,7 @@ jobs:
       uses: codacy/codacy-coverage-reporter-action@v1
       with:
         project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
-        coverage-reports: Serilog.Sinks.LogicMonitor.Tests/bin/Debug/net10.0/TestResults/coverage.cobertura.xml
+        coverage-reports: Serilog.Sinks.LogicMonitor.Tests/bin/Debug/net11.0/TestResults/coverage.cobertura.xml
 
     - name: Upload coverage artifact
       if: always()
@@ -101,7 +101,7 @@ jobs:
       uses: actions/upload-artifact@v7
       with:
         name: coverage
-        path: Serilog.Sinks.LogicMonitor.Tests/bin/Debug/net10.0/TestResults/coverage.cobertura.xml
+        path: Serilog.Sinks.LogicMonitor.Tests/bin/Debug/net11.0/TestResults/coverage.cobertura.xml
         retention-days: 7
 
   publish:
