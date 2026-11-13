@@ -10,7 +10,7 @@ Supports .NET 11.0.
 NOTE: **FieldWriters are not yet used and can be omitted.**
 
 **Package** - [Serilog.Sinks.LogicMonitor](https://www.nuget.org/packages/Serilog.Sinks.LogicMonitor.PanoramicData/)
-  **Platforms** - .NET 11.0
+| **Platforms** - .NET 11.0
 
 ## Code
 
