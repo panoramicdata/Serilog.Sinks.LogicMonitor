@@ -10,15 +10,10 @@ namespace Serilog.Sinks.LogicMonitor;
 /// </summary>
 public class LogicMonitorSink : IBatchedLogEventSink, IDisposable
 {
-	private readonly Dictionary<string, string>? _propertyDictionary;
-	private readonly string? _customPropertyName;
-	private readonly string? _customPropertyValue;
-	private readonly string? _deviceDisplayName;
-	private readonly int? _deviceId;
-	private readonly IDictionary<string, FieldWriterBase>? _fieldOptions;
-	private readonly LogicMonitorClient _logicMonitorClient;
-	private readonly WriteMethod _writeMethod;
+	private readonly Func<WriteLogLevel, string, WriteLogRequest> _buildRequest;
+	private readonly IDictionary<string, FieldWriterBase> _fieldOptions;
 	private readonly IFormatProvider? _formatProvider;
+	private IWriteLogClient _client;
 	private bool disposedValue;
 
 	/// <summary>
@@ -42,18 +37,13 @@ public class LogicMonitorSink : IBatchedLogEventSink, IDisposable
 		int deviceId,
 		IFormatProvider? formatProvider = null,
 		IDictionary<string, FieldWriterBase>? fieldOptions = null
-		) : this(logicMonitorClientOptions,
+		) : this(
+			logicMonitorClientOptions,
+			(level, message) => new WriteLogRequest(level, deviceId, message),
 			formatProvider,
-			fieldOptions
-		)
+			fieldOptions)
 	{
-		if (deviceId <= 0)
-		{
-			throw new ArgumentOutOfRangeException(nameof(deviceId), "Should be greater than 0.");
-		}
-
-		_deviceId = deviceId;
-		_writeMethod = WriteMethod.DeviceId;
+		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(deviceId);
 	}
 
 	/// <summary>
@@ -66,13 +56,13 @@ public class LogicMonitorSink : IBatchedLogEventSink, IDisposable
 	public LogicMonitorSink(LogicMonitorClientOptions logicMonitorClientOptions,
 		string resourceDisplayName,
 		IFormatProvider? formatProvider = null,
-		IDictionary<string, FieldWriterBase>? fieldOptions = null) : this(logicMonitorClientOptions,
+		IDictionary<string, FieldWriterBase>? fieldOptions = null
+		) : this(
+			logicMonitorClientOptions,
+			(level, message) => new WriteLogRequest(level, resourceDisplayName, message),
 			formatProvider,
-			fieldOptions
-		)
+			fieldOptions)
 	{
-		_deviceDisplayName = resourceDisplayName;
-		_writeMethod = WriteMethod.DeviceDisplayName;
 	}
 
 	/// <summary>
@@ -88,14 +78,12 @@ public class LogicMonitorSink : IBatchedLogEventSink, IDisposable
 		string customPropertyValue,
 		IFormatProvider? formatProvider = null,
 		IDictionary<string, FieldWriterBase>? fieldOptions = null
-) : this(logicMonitorClientOptions,
+		) : this(
+			logicMonitorClientOptions,
+			(level, message) => new WriteLogRequest(level, customPropertyName, customPropertyValue, message),
 			formatProvider,
-			fieldOptions
-		)
+			fieldOptions)
 	{
-		_customPropertyName = customPropertyName;
-		_customPropertyValue = customPropertyValue;
-		_writeMethod = WriteMethod.CustomProperty;
 	}
 
 	/// <summary>
@@ -109,28 +97,27 @@ public class LogicMonitorSink : IBatchedLogEventSink, IDisposable
 		Dictionary<string, string> propertyDictionary,
 		IFormatProvider? formatProvider = null,
 		IDictionary<string, FieldWriterBase>? fieldOptions = null
-) : this(logicMonitorClientOptions,
+		) : this(
+			logicMonitorClientOptions,
+			(level, message) => new WriteLogRequest(level, propertyDictionary, message),
 			formatProvider,
-			fieldOptions
-		)
+			fieldOptions)
 	{
-		_propertyDictionary = propertyDictionary ?? throw new ArgumentNullException(nameof(propertyDictionary));
-		_writeMethod = WriteMethod.PropertyDictionary;
+		ArgumentNullException.ThrowIfNull(propertyDictionary);
 	}
 
 	private LogicMonitorSink(
 		LogicMonitorClientOptions logicMonitorClientOptions,
+		Func<WriteLogLevel, string, WriteLogRequest> buildRequest,
 		IFormatProvider? formatProvider,
 		IDictionary<string, FieldWriterBase>? fieldOptions)
 	{
-		if (logicMonitorClientOptions is null)
-		{
-			throw new ArgumentNullException(nameof(logicMonitorClientOptions));
-		}
+		ArgumentNullException.ThrowIfNull(logicMonitorClientOptions);
 
+		_buildRequest = buildRequest;
 		_formatProvider = formatProvider;
 		_fieldOptions = fieldOptions ?? FieldOptions.Default;
-		_logicMonitorClient = new LogicMonitorClient(logicMonitorClientOptions);
+		_client = new LogicMonitorWriteLogClient(logicMonitorClientOptions);
 	}
 
 	/// <summary>
@@ -138,50 +125,18 @@ public class LogicMonitorSink : IBatchedLogEventSink, IDisposable
 	/// </summary>
 	/// <param name="logEventBatch">The batch of log events to write.</param>
 	public async Task EmitBatchAsync(IEnumerable<LogEvent> logEventBatch)
+		=> await _client
+			.WriteLogAsync(
+				logEventBatch.Select(logEvent => _buildRequest(GetWriteLogLevel(logEvent), logEvent.RenderMessage(_formatProvider))),
+				default)
+			.ConfigureAwait(false);
+
+	internal IDictionary<string, FieldWriterBase> FieldOptionsInUse => _fieldOptions;
+
+	internal void ReplaceClient(IWriteLogClient client)
 	{
-		_ = _writeMethod switch
-		{
-			WriteMethod.DeviceId => await _logicMonitorClient
-				.WriteLogAsync(
-					logEventBatch.Select(logEvent => new WriteLogRequest(
-							GetWriteLogLevel(logEvent),
-							_deviceId ?? throw new InvalidOperationException($"{nameof(_deviceId)} should not be null for write method {_writeMethod}"),
-							logEvent.RenderMessage(_formatProvider)
-						)
-					),
-					cancellationToken: default
-			).ConfigureAwait(false),
-			WriteMethod.DeviceDisplayName => await _logicMonitorClient
-				.WriteLogAsync(
-					logEventBatch.Select(logEvent => new WriteLogRequest(
-					GetWriteLogLevel(logEvent),
-					_deviceDisplayName ?? throw new InvalidOperationException($"{nameof(_deviceDisplayName)} should not be null for write method {_writeMethod}"),
-					logEvent.RenderMessage(_formatProvider)
-				)
-			),
-			cancellationToken: default
-			).ConfigureAwait(false),
-			WriteMethod.CustomProperty => await _logicMonitorClient
-				.WriteLogAsync(
-					logEventBatch.Select(logEvent => new WriteLogRequest(
-					GetWriteLogLevel(logEvent),
-					_customPropertyName ?? throw new InvalidOperationException($"{nameof(_customPropertyName)} should not be null for write method {_writeMethod}"),
-					_customPropertyValue ?? throw new InvalidOperationException($"{nameof(_customPropertyValue)} should not be null for write method {_writeMethod}"),
-					logEvent.RenderMessage(_formatProvider)
-				)),
-				cancellationToken: default
-			).ConfigureAwait(false),
-			WriteMethod.PropertyDictionary => await _logicMonitorClient
-				.WriteLogAsync(
-					logEventBatch.Select(logEvent => new WriteLogRequest(
-						GetWriteLogLevel(logEvent),
-						_propertyDictionary ?? throw new InvalidOperationException($"{nameof(_propertyDictionary)} should not be null for write method {_writeMethod}"),
-						logEvent.RenderMessage(_formatProvider)
-					)),
-					cancellationToken: default
-				).ConfigureAwait(false),
-			_ => throw new NotSupportedException($"Unexpected write method {_writeMethod}"),
-		};
+		_client.Dispose();
+		_client = client;
 	}
 
 	private static WriteLogLevel GetWriteLogLevel(LogEvent logEvent) => logEvent.Level switch
@@ -201,14 +156,6 @@ public class LogicMonitorSink : IBatchedLogEventSink, IDisposable
 	/// <returns>A completed task.</returns>
 	public Task OnEmptyBatchAsync() => Task.CompletedTask;
 
-	private enum WriteMethod
-	{
-		DeviceId,
-		DeviceDisplayName,
-		CustomProperty,
-		PropertyDictionary
-	}
-
 	/// <summary>
 	/// Releases managed and unmanaged resources.
 	/// </summary>
@@ -219,7 +166,7 @@ public class LogicMonitorSink : IBatchedLogEventSink, IDisposable
 		{
 			if (disposing)
 			{
-				_logicMonitorClient?.Dispose();
+				_client.Dispose();
 			}
 
 			disposedValue = true;
@@ -231,7 +178,6 @@ public class LogicMonitorSink : IBatchedLogEventSink, IDisposable
 	/// </summary>
 	public void Dispose()
 	{
-		// Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
 		Dispose(disposing: true);
 		GC.SuppressFinalize(this);
 	}

@@ -1,4 +1,4 @@
-﻿using LogicMonitor.Api;
+using LogicMonitor.Api;
 using Serilog.Configuration;
 using Serilog.Core;
 using Serilog.Events;
@@ -42,37 +42,12 @@ public static class LoggerConfigurationLogicMonitorExtensions
 		 LoggingLevelSwitch? levelSwitch = null
 		)
 	{
-		if (sinkConfiguration is null)
-		{
-			throw new ArgumentNullException(nameof(sinkConfiguration));
-		}
+		ArgumentNullException.ThrowIfNull(sinkConfiguration);
+		ArgumentNullException.ThrowIfNull(logicmonitorClientOptions);
+		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(resourceId);
 
-		if (logicmonitorClientOptions is null)
-		{
-			throw new ArgumentNullException(nameof(logicmonitorClientOptions));
-		}
-
-		if (resourceId <= 0)
-		{
-			throw new ArgumentOutOfRangeException(nameof(resourceId), "Should be greater than 0.");
-		}
-
-		;
-
-		var batchingOptions = new PeriodicBatchingSinkOptions
-		{
-			BatchSizeLimit = batchSizeLimit,
-			Period = period ?? DefaultPeriod,
-			EagerlyEmitFirstEvent = true,
-			QueueLimit = queueLimit
-		};
-		var lmSink = new LogicMonitorSink(
-			logicmonitorClientOptions,
-			resourceId,
-			formatProvider: formatProvider,
-			fieldOptions: fieldOptions);
-		var batchingSink = new PeriodicBatchingSink(lmSink, batchingOptions);
-		return sinkConfiguration.Sink(batchingSink, restrictedToMinimumLevel, levelSwitch);
+		var lmSink = new LogicMonitorSink(logicmonitorClientOptions, resourceId, formatProvider, fieldOptions);
+		return AddBatchingSink(sinkConfiguration, lmSink, restrictedToMinimumLevel, period, batchSizeLimit, queueLimit, levelSwitch);
 	}
 
 	/// <summary>
@@ -101,45 +76,18 @@ public static class LoggerConfigurationLogicMonitorExtensions
 		 LoggingLevelSwitch? levelSwitch = null
 		)
 	{
-		if (sinkConfiguration is null)
-		{
-			throw new ArgumentNullException(nameof(sinkConfiguration));
-		}
+		ArgumentNullException.ThrowIfNull(sinkConfiguration);
+		ArgumentNullException.ThrowIfNull(logicmonitorClientOptions);
+		ArgumentNullException.ThrowIfNull(resourceDisplayName);
 
-		if (logicmonitorClientOptions is null)
-		{
-			throw new ArgumentNullException(nameof(logicmonitorClientOptions));
-		}
+		resourceDisplayName = resourceDisplayName.Replace("{EnvironmentVariable:HOSTNAME}", Environment.GetEnvironmentVariable("HOSTNAME"));
 
-		if (resourceDisplayName is null)
-		{
-			throw new ArgumentNullException(nameof(resourceDisplayName));
-		}
-
-		// Swap out the hostname
-		foreach (var env in new string[] { "HOSTNAME" })
-		{
-			resourceDisplayName = resourceDisplayName.Replace($"{{EnvironmentVariable:{env}}}", Environment.GetEnvironmentVariable(env));
-		}
-
-		var batchingOptions = new PeriodicBatchingSinkOptions
-		{
-			BatchSizeLimit = batchSizeLimit,
-			Period = period ?? DefaultPeriod,
-			EagerlyEmitFirstEvent = true,
-			QueueLimit = queueLimit
-		};
-		var lmSink = new LogicMonitorSink(
-			logicmonitorClientOptions,
-			resourceDisplayName,
-			formatProvider: formatProvider,
-			fieldOptions: fieldOptions);
-		var batchingSink = new PeriodicBatchingSink(lmSink, batchingOptions);
-		return sinkConfiguration.Sink(batchingSink, restrictedToMinimumLevel, levelSwitch);
+		var lmSink = new LogicMonitorSink(logicmonitorClientOptions, resourceDisplayName, formatProvider, fieldOptions);
+		return AddBatchingSink(sinkConfiguration, lmSink, restrictedToMinimumLevel, period, batchSizeLimit, queueLimit, levelSwitch);
 	}
 
 	/// <summary>
-	/// Adds a sink which writes to LogicMonitor using the resource display name as the device identifier.
+	/// Adds a sink which writes to LogicMonitor using a custom property name and value as the device identifier.
 	/// </summary>
 	/// <param name="sinkConfiguration">The logger configuration.</param>
 	/// <param name="logicmonitorClientOptions">The LogicMonitor client options.</param>
@@ -168,46 +116,17 @@ public static class LoggerConfigurationLogicMonitorExtensions
 		 LoggingLevelSwitch? levelSwitch = null
 		)
 	{
-		if (sinkConfiguration is null)
-		{
-			throw new ArgumentNullException(nameof(sinkConfiguration));
-		}
+		ArgumentNullException.ThrowIfNull(sinkConfiguration);
+		ArgumentNullException.ThrowIfNull(logicmonitorClientOptions);
+		ArgumentNullException.ThrowIfNull(customPropertyName);
+		ArgumentNullException.ThrowIfNull(customPropertyValue);
 
-		if (logicmonitorClientOptions is null)
-		{
-			throw new ArgumentNullException(nameof(logicmonitorClientOptions));
-		}
-
-		if (customPropertyName is null)
-		{
-			throw new ArgumentNullException(nameof(customPropertyName));
-		}
-
-		if (customPropertyValue is null)
-		{
-			throw new ArgumentNullException(nameof(customPropertyValue));
-		}
-
-		var batchingOptions = new PeriodicBatchingSinkOptions
-		{
-			BatchSizeLimit = batchSizeLimit,
-			Period = period ?? DefaultPeriod,
-			EagerlyEmitFirstEvent = true,
-			QueueLimit = queueLimit
-		};
-		var lmSink = new LogicMonitorSink(
-			logicmonitorClientOptions,
-			customPropertyName,
-			customPropertyValue,
-			formatProvider: formatProvider,
-			fieldOptions: fieldOptions);
-		var batchingSink = new PeriodicBatchingSink(lmSink, batchingOptions);
-		return sinkConfiguration.Sink(batchingSink, restrictedToMinimumLevel, levelSwitch);
+		var lmSink = new LogicMonitorSink(logicmonitorClientOptions, customPropertyName, customPropertyValue, formatProvider, fieldOptions);
+		return AddBatchingSink(sinkConfiguration, lmSink, restrictedToMinimumLevel, period, batchSizeLimit, queueLimit, levelSwitch);
 	}
 
-
 	/// <summary>
-	/// Adds a sink which writes to LogicMonitor using the resource display name as the device identifier.
+	/// Adds a sink which writes to LogicMonitor using a custom property dictionary as the device identifier.
 	/// </summary>
 	/// <param name="sinkConfiguration">The logger configuration.</param>
 	/// <param name="logicmonitorClientOptions">The LogicMonitor client options.</param>
@@ -232,21 +151,23 @@ public static class LoggerConfigurationLogicMonitorExtensions
 		 LoggingLevelSwitch? levelSwitch = null
 		)
 	{
-		if (sinkConfiguration is null)
-		{
-			throw new ArgumentNullException(nameof(sinkConfiguration));
-		}
+		ArgumentNullException.ThrowIfNull(sinkConfiguration);
+		ArgumentNullException.ThrowIfNull(logicmonitorClientOptions);
+		ArgumentNullException.ThrowIfNull(propertyDictionary);
 
-		if (logicmonitorClientOptions is null)
-		{
-			throw new ArgumentNullException(nameof(logicmonitorClientOptions));
-		}
+		var lmSink = new LogicMonitorSink(logicmonitorClientOptions, propertyDictionary, formatProvider, fieldOptions);
+		return AddBatchingSink(sinkConfiguration, lmSink, restrictedToMinimumLevel, period, batchSizeLimit, queueLimit, levelSwitch);
+	}
 
-		if (propertyDictionary is null)
-		{
-			throw new ArgumentNullException(nameof(propertyDictionary));
-		}
-
+	private static LoggerConfiguration AddBatchingSink(
+		LoggerSinkConfiguration sinkConfiguration,
+		LogicMonitorSink lmSink,
+		LogEventLevel restrictedToMinimumLevel,
+		TimeSpan? period,
+		int batchSizeLimit,
+		int queueLimit,
+		LoggingLevelSwitch? levelSwitch)
+	{
 		var batchingOptions = new PeriodicBatchingSinkOptions
 		{
 			BatchSizeLimit = batchSizeLimit,
@@ -254,7 +175,6 @@ public static class LoggerConfigurationLogicMonitorExtensions
 			EagerlyEmitFirstEvent = true,
 			QueueLimit = queueLimit
 		};
-		var lmSink = new LogicMonitorSink(logicmonitorClientOptions, propertyDictionary, formatProvider: formatProvider, fieldOptions: fieldOptions);
 		var batchingSink = new PeriodicBatchingSink(lmSink, batchingOptions);
 		return sinkConfiguration.Sink(batchingSink, restrictedToMinimumLevel, levelSwitch);
 	}
