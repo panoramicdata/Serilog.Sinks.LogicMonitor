@@ -6,31 +6,17 @@ namespace Serilog.Sinks.LogicMonitor.Tests.FieldWritersTests;
 public class TimestampColumnWriterTest
 {
 	/// <summary>
-	/// Verifies timestamp values are returned unchanged by default.
+	/// Verifies the event timestamp is returned unchanged, whatever its offset.
 	/// </summary>
-	[Fact]
-	public void ByDefault_ShouldReturnTimestampValueWithoutTimezone()
+	[Theory]
+	[InlineData(0)]
+	[InlineData(5)]
+	[InlineData(-8)]
+	public void GetValue_ReturnsTheEventTimestampUnchanged(int offsetHours)
 	{
-		var writer = new TimestampFieldWriter();
-		var timeStamp = new DateTimeOffset(2017, 8, 13, 11, 11, 11, new TimeSpan());
-		var testEvent = new LogEvent(timeStamp, LogEventLevel.Debug, null, new MessageTemplate([]), []);
-		var result = writer.GetValue(testEvent);
-
-		result.Should().Be(timeStamp);
-	}
-
-	/// <summary>
-	/// Verifies timestamp values are returned for timezone-aware scenarios.
-	/// </summary>
-	[Fact]
-	public void DbTypeWithTimezoneSelected_ShouldReturnTimestampValue()
-	{
-		var writer = new TimestampFieldWriter();
-		var timeStamp = new DateTimeOffset(2017, 8, 13, 11, 11, 11, new TimeSpan());
+		var timeStamp = new DateTimeOffset(2017, 8, 13, 11, 11, 11, TimeSpan.FromHours(offsetHours));
 		var testEvent = new LogEvent(timeStamp, LogEventLevel.Debug, null, new MessageTemplate([]), []);
 
-		var result = writer.GetValue(testEvent);
-
-		result.Should().Be(timeStamp);
+		new TimestampFieldWriter().GetValue(testEvent).Should().Be(timeStamp);
 	}
 }

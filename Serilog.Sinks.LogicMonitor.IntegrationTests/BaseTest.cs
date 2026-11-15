@@ -1,16 +1,18 @@
-﻿namespace Serilog.Sinks.LogicMonitor.IntegrationTests;
+﻿using Serilog.Sinks.LogicMonitor.IntegrationTests.Objects;
+
+namespace Serilog.Sinks.LogicMonitor.IntegrationTests;
 
 /// <summary>
-/// Base test class for LogicMonitor sink integration tests. This class is responsible for loading the test configuration from the appsettings.json file and providing common properties and setup for the derived test classes. The configuration includes the LogicMonitor client options, which are used to create instances of the LogicMonitorClient for interacting with the LogicMonitor API during the tests. The client options also include a logger that writes to the test output, allowing for visibility of log messages during test runs. Additionally, this class defines a set of field properties that determine how log event fields are written to LogicMonitor, as well as a property for the resource ID of the target device in LogicMonitor that the tests will write events to.
+/// Base class for the integration tests, which write to a live LogicMonitor portal configured in appsettings.json.
 /// </summary>
 public abstract class BaseTest
 {
 	private readonly TestConfig _config;
 
 	/// <summary>
-	/// Constructor for the BaseTest class. This constructor loads the test configuration from the appsettings.json file and initializes the LogicMonitor client options with a logger that writes to the test output. The configuration is expected to include the necessary settings for connecting to the LogicMonitor API, such as account information and credentials, as well as any additional options needed for the tests. If the configuration cannot be loaded or is missing required settings, a FormatException will be thrown to indicate that the test setup is invalid.
+	/// Loads the test configuration and routes the client logging to the test output.
 	/// </summary>
-	/// <param name="testOutputHelper"></param>
+	/// <param name="testOutputHelper">The test output helper.</param>
 	protected BaseTest(ITestOutputHelper testOutputHelper)
 	{
 		var fileInfo = new FileInfo("../../../appsettings.json");
@@ -19,31 +21,74 @@ public abstract class BaseTest
 			.AddJsonFile(fileInfo.FullName, false, true)
 			.Build();
 		_config = config.Get<TestConfig>() ?? throw new FormatException("Failed to load test configuration from appsettings.json");
-		_config.ClientOptions.Logger = testOutputHelper.BuildLogger();
+		_config.ClientOptions.Logger = new TestOutputLogger(testOutputHelper);
 	}
 
 	/// <summary>
-	/// The LogicMonitorClientOptions to use for the tests. This is populated from the appsettings.json file, and includes a logger that writes to the test output for visibility during test runs.
+	/// The client options loaded from appsettings.json.
 	/// </summary>
 	protected LogicMonitorClientOptions LogicMonitorClientOptions => _config.ClientOptions;
 
 	/// <summary>
-	/// The field properties to use for the tests. This is a dictionary of field names to FieldWriterBase instances that determine how the fields are written to LogicMonitor. The default set of fields includes the rendered message, message template, level, raise date, exception, properties, and machine name.
+	/// The default field writers.
 	/// </summary>
-	protected Dictionary<string, FieldWriterBase> FieldProperties { get; } = new Dictionary<string, FieldWriterBase>
-	{
-		{"message", new RenderedMessageFieldWriter() },
-		{"message_template", new MessageTemplateFieldWriter() },
-		{"level", new LevelFieldWriter(true) },
-		{"raise_date", new TimestampFieldWriter() },
-		{"exception", new ExceptionFieldWriter() },
-		{"properties", new LogEventSerializedFieldWriter() },
-		{"props_test", new PropertiesFieldWriter() },
-		{"machine_name", new SinglePropertyFieldWriter("MachineName") }
-	};
+	protected Dictionary<string, FieldWriterBase> FieldProperties { get; } = FieldSets.Default();
 
 	/// <summary>
-	/// The ID of the device resource in LogicMonitor that the test events will be written to. This device must exist and be configured with the "cmdb.id" custom property for the tests to work.
+	/// The id of the device that events are written to. It must have the "cmdb.id" custom property.
 	/// </summary>
 	protected int ResourceId => _config.ResourceId;
+
+	/// <summary>
+	/// Writes events carrying nested test objects to the configured resource.
+	/// </summary>
+	/// <param name="fields">The field writers to use.</param>
+	/// <param name="count">The number of events to write.</param>
+	protected void WriteTestEvents(IDictionary<string, FieldWriterBase> fields, int count)
+	{
+		var testObject = new TestObjectType1 { IntProp = 42, StringProp = "Test" };
+		var testObj2 = new TestObjectType2 { DateProp1 = DateTime.Now, NestedProp = testObject };
+
+		using var logger = new LoggerConfiguration()
+			.WriteTo.LogicMonitor(LogicMonitorClientOptions, ResourceId, fields)
+			.Enrich.WithMachineName()
+			.CreateLogger();
+		for (var i = 0; i < count; i++)
+		{
+			logger.Information("Test{testNo}: {@testObject} test2: {@testObj2} testStr: {@testStr:l}", i, testObject, testObj2, "stringValue");
+		}
+	}
+
+	/// <summary>
+	/// Writes one event, identifying the device with the supplied sink configuration.
+	/// </summary>
+	/// <param name="configure">Adds the LogicMonitor sink to the configuration.</param>
+	/// <param name="testName">The name of the calling test.</param>
+	protected static void WriteOneEvent(Func<Configuration.LoggerSinkConfiguration, LoggerConfiguration> configure, string testName)
+	{
+		using var logger = configure(new LoggerConfiguration().WriteTo)
+			.Enrich.WithMachineName()
+			.CreateLogger();
+		logger.Information($"Serilog.Sinks.LogicMonitor: {testName}");
+	}
+
+	/// <summary>
+	/// Gets the configured resource from LogicMonitor.
+	/// </summary>
+	protected async Task<Resource> GetResourceAsync()
+	{
+		using var client = new LogicMonitorClient(LogicMonitorClientOptions);
+		return await client.GetAsync<Resource>(ResourceId, default);
+	}
+
+	/// <summary>
+	/// Gets the "cmdb.id" custom property of a resource.
+	/// </summary>
+	/// <param name="resource">The resource.</param>
+	protected static (string Name, string Value) GetCmdbId(Resource resource)
+	{
+		var property = resource.CustomProperties.FirstOrDefault(cp => cp.Name == "cmdb.id")
+			?? throw new FormatException($"Resource {resource.DisplayName} is missing the cmdb.id custom property needed for this test.");
+		return (property.Name, property.Value);
+	}
 }

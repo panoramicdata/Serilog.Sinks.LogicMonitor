@@ -5,54 +5,63 @@
 /// </summary>
 public class SinglePropertyColumnWriterTest
 {
+	private const string PropertyName = "TestProperty";
+
+	private static object? GetValue(SinglePropertyFieldWriter writer, params LogEventProperty[] properties)
+		=> writer.GetValue(new LogEvent(DateTime.Now, LogEventLevel.Debug, null, new MessageTemplate([]), properties));
+
+	private static LogEventProperty Scalar(object value) => new(PropertyName, new ScalarValue(value));
+
 	/// <summary>
-	/// Verifies <see cref="PropertyWriteMethod.ToString"/> output with formatting.
+	/// Verifies the format is respected when writing with ToString.
 	/// </summary>
 	[Fact]
-	public void WithToStringSeleted_ShouldRespectFormatPassed()
-	{
-		const string propertyName = "TestProperty";
-		const string propertyValue = "TestValue";
-
-		var property = new LogEventProperty(propertyName, new ScalarValue(propertyValue));
-		var writer = new SinglePropertyFieldWriter(propertyName, PropertyWriteMethod.ToString, format: "l");
-		var testEvent = new LogEvent(DateTime.Now, LogEventLevel.Debug, null, new MessageTemplate([]), [property]);
-		var result = writer.GetValue(testEvent);
-
-		result.Should().Be(propertyValue);
-	}
+	public void WithToStringSelected_ShouldRespectFormatPassed()
+		=> GetValue(new SinglePropertyFieldWriter(PropertyName, PropertyWriteMethod.ToString, format: "l"), Scalar("TestValue"))
+			.Should().Be("TestValue");
 
 	/// <summary>
 	/// Verifies missing properties return null.
 	/// </summary>
 	[Fact]
-	public void PropertyIsNotPeresent_ShouldReturnNullValue()
-	{
-		const string propertyName = "TestProperty";
-		const string propertyValue = "TestValue";
-
-		_ = new LogEventProperty(propertyName, new ScalarValue(propertyValue));
-		var writer = new SinglePropertyFieldWriter(propertyName, PropertyWriteMethod.ToString, format: "l");
-		var testEvent = new LogEvent(DateTime.Now, LogEventLevel.Debug, null, new MessageTemplate([]), []);
-		var result = writer.GetValue(testEvent);
-
-		result.Should().BeNull();
-	}
+	public void PropertyIsNotPresent_ShouldReturnNullValue()
+		=> GetValue(new SinglePropertyFieldWriter(PropertyName)).Should().BeNull();
 
 	/// <summary>
 	/// Verifies scalar values are returned directly in raw mode.
 	/// </summary>
 	[Fact]
 	public void RawSelectedForScalarProperty_ShouldReturnPropertyValue()
+		=> GetValue(new SinglePropertyFieldWriter(PropertyName, PropertyWriteMethod.Raw), Scalar(42)).Should().Be(42);
+
+	/// <summary>
+	/// Verifies non-scalar values are returned as the property value itself in raw mode.
+	/// </summary>
+	[Fact]
+	public void RawSelectedForStructureProperty_ShouldReturnTheLogEventValue()
 	{
-		const string propertyName = "TestProperty";
-		const int propertyValue = 42;
+		var structure = new StructureValue([new LogEventProperty("Inner", new ScalarValue(1))]);
 
-		var property = new LogEventProperty(propertyName, new ScalarValue(propertyValue));
-		var writer = new SinglePropertyFieldWriter(propertyName, PropertyWriteMethod.Raw);
-		var testEvent = new LogEvent(DateTime.Now, LogEventLevel.Debug, null, new MessageTemplate([]), [property]);
-		var result = writer.GetValue(testEvent);
+		GetValue(new SinglePropertyFieldWriter(PropertyName, PropertyWriteMethod.Raw), new LogEventProperty(PropertyName, structure))
+			.Should().BeSameAs(structure);
+	}
 
-		result.Should().Be(propertyValue);
+	/// <summary>
+	/// Verifies values are serialised as JSON in JSON mode.
+	/// </summary>
+	[Fact]
+	public void JsonSelected_ShouldReturnTheValueAsJson()
+		=> GetValue(new SinglePropertyFieldWriter(PropertyName, PropertyWriteMethod.Json), Scalar("TestValue"))
+			.Should().Be("\"TestValue\"");
+
+	/// <summary>
+	/// Verifies the writer exposes how it was configured.
+	/// </summary>
+	[Fact]
+	public void Constructor_ExposesTheConfiguration()
+	{
+		var writer = new SinglePropertyFieldWriter(PropertyName, PropertyWriteMethod.Json, "x");
+
+		(writer.Name, writer.WriteMethod, writer.Format).Should().Be((PropertyName, PropertyWriteMethod.Json, "x"));
 	}
 }

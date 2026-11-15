@@ -5,7 +5,7 @@ namespace Serilog.Sinks.LogicMonitor.ExampleConsole;
 /// <summary>
 /// Example console entry point for exercising the LogicMonitor sink.
 /// </summary>
-public class Program
+public static class Program
 {
 	/// <summary>
 	/// Application entry point.
