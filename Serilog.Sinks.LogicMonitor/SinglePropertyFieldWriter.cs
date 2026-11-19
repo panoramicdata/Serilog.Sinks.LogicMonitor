@@ -1,5 +1,6 @@
 ﻿using Serilog.Events;
 using Serilog.Formatting.Json;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace Serilog.Sinks.LogicMonitor;
@@ -9,8 +10,8 @@ namespace Serilog.Sinks.LogicMonitor;
 /// </summary>
 public class SinglePropertyFieldWriter(
 	string propertyName,
-	PropertyWriteMethod writeMethod = PropertyWriteMethod.ToString,
-	string? format = null) : FieldWriterBase
+	[Optional] [DefaultParameterValue(PropertyWriteMethod.ToString)] PropertyWriteMethod writeMethod,
+	[Optional] [DefaultParameterValue(null)] string? format) : FieldWriterBase
 {
 	/// <summary>
 	/// Gets the property name to extract.

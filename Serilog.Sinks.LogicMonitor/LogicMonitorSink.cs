@@ -2,6 +2,7 @@
 using LogicMonitor.Api.Logging;
 using Serilog.Events;
 using Serilog.Sinks.PeriodicBatching;
+using System.Runtime.InteropServices;
 
 namespace Serilog.Sinks.LogicMonitor;
 
@@ -35,8 +36,8 @@ public class LogicMonitorSink : IBatchedLogEventSink, IDisposable
 	/// <param name="fieldOptions">Optional field writer overrides.</param>
 	public LogicMonitorSink(LogicMonitorClientOptions logicMonitorClientOptions,
 		int deviceId,
-		IFormatProvider? formatProvider = null,
-		IDictionary<string, FieldWriterBase>? fieldOptions = null
+		[Optional] [DefaultParameterValue(null)] IFormatProvider? formatProvider,
+		[Optional] [DefaultParameterValue(null)] IDictionary<string, FieldWriterBase>? fieldOptions
 		) : this(
 			logicMonitorClientOptions,
 			(level, message) => new WriteLogRequest(level, deviceId, message),
@@ -55,8 +56,8 @@ public class LogicMonitorSink : IBatchedLogEventSink, IDisposable
 	/// <param name="fieldOptions">Optional field writer overrides.</param>
 	public LogicMonitorSink(LogicMonitorClientOptions logicMonitorClientOptions,
 		string resourceDisplayName,
-		IFormatProvider? formatProvider = null,
-		IDictionary<string, FieldWriterBase>? fieldOptions = null
+		[Optional] [DefaultParameterValue(null)] IFormatProvider? formatProvider,
+		[Optional] [DefaultParameterValue(null)] IDictionary<string, FieldWriterBase>? fieldOptions
 		) : this(
 			logicMonitorClientOptions,
 			(level, message) => new WriteLogRequest(level, resourceDisplayName, message),
@@ -76,8 +77,8 @@ public class LogicMonitorSink : IBatchedLogEventSink, IDisposable
 	public LogicMonitorSink(LogicMonitorClientOptions logicMonitorClientOptions,
 		string customPropertyName,
 		string customPropertyValue,
-		IFormatProvider? formatProvider = null,
-		IDictionary<string, FieldWriterBase>? fieldOptions = null
+		[Optional] [DefaultParameterValue(null)] IFormatProvider? formatProvider,
+		[Optional] [DefaultParameterValue(null)] IDictionary<string, FieldWriterBase>? fieldOptions
 		) : this(
 			logicMonitorClientOptions,
 			(level, message) => new WriteLogRequest(level, customPropertyName, customPropertyValue, message),
@@ -95,8 +96,8 @@ public class LogicMonitorSink : IBatchedLogEventSink, IDisposable
 	/// <param name="fieldOptions">Optional field writer overrides.</param>
 	public LogicMonitorSink(LogicMonitorClientOptions logicMonitorClientOptions,
 		Dictionary<string, string> propertyDictionary,
-		IFormatProvider? formatProvider = null,
-		IDictionary<string, FieldWriterBase>? fieldOptions = null
+		[Optional] [DefaultParameterValue(null)] IFormatProvider? formatProvider,
+		[Optional] [DefaultParameterValue(null)] IDictionary<string, FieldWriterBase>? fieldOptions
 		) : this(
 			logicMonitorClientOptions,
 			(level, message) => new WriteLogRequest(level, propertyDictionary, message),

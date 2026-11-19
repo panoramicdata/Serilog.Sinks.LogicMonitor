@@ -3,6 +3,7 @@ using Serilog.Configuration;
 using Serilog.Core;
 using Serilog.Events;
 using Serilog.Sinks.PeriodicBatching;
+using System.Runtime.InteropServices;
 
 namespace Serilog.Sinks.LogicMonitor;
 
@@ -33,13 +34,13 @@ public static class LoggerConfigurationLogicMonitorExtensions
 	public static LoggerConfiguration LogicMonitor(this LoggerSinkConfiguration sinkConfiguration,
 		 LogicMonitorClientOptions logicmonitorClientOptions,
 		 int resourceId,
-		 IDictionary<string, FieldWriterBase>? fieldOptions = null,
-		 LogEventLevel restrictedToMinimumLevel = LevelAlias.Minimum,
-		 TimeSpan? period = null,
-		 IFormatProvider? formatProvider = null,
-		 int batchSizeLimit = LogicMonitorSink.DefaultBatchSizeLimit,
-		 int queueLimit = LogicMonitorSink.DefaultQueueLimit,
-		 LoggingLevelSwitch? levelSwitch = null
+		 [Optional] [DefaultParameterValue(null)] IDictionary<string, FieldWriterBase>? fieldOptions,
+		 [Optional] [DefaultParameterValue(LevelAlias.Minimum)] LogEventLevel restrictedToMinimumLevel,
+		 [Optional] TimeSpan? period,
+		 [Optional] [DefaultParameterValue(null)] IFormatProvider? formatProvider,
+		 [Optional] [DefaultParameterValue(LogicMonitorSink.DefaultBatchSizeLimit)] int batchSizeLimit,
+		 [Optional] [DefaultParameterValue(LogicMonitorSink.DefaultQueueLimit)] int queueLimit,
+		 [Optional] [DefaultParameterValue(null)] LoggingLevelSwitch? levelSwitch
 		)
 	{
 		ArgumentNullException.ThrowIfNull(sinkConfiguration);
@@ -67,13 +68,13 @@ public static class LoggerConfigurationLogicMonitorExtensions
 	public static LoggerConfiguration LogicMonitor(this LoggerSinkConfiguration sinkConfiguration,
 		 LogicMonitorClientOptions logicmonitorClientOptions,
 		 string resourceDisplayName,
-		 IDictionary<string, FieldWriterBase>? fieldOptions = null,
-		 LogEventLevel restrictedToMinimumLevel = LevelAlias.Minimum,
-		 TimeSpan? period = null,
-		 IFormatProvider? formatProvider = null,
-		 int batchSizeLimit = LogicMonitorSink.DefaultBatchSizeLimit,
-		 int queueLimit = LogicMonitorSink.DefaultQueueLimit,
-		 LoggingLevelSwitch? levelSwitch = null
+		 [Optional] [DefaultParameterValue(null)] IDictionary<string, FieldWriterBase>? fieldOptions,
+		 [Optional] [DefaultParameterValue(LevelAlias.Minimum)] LogEventLevel restrictedToMinimumLevel,
+		 [Optional] TimeSpan? period,
+		 [Optional] [DefaultParameterValue(null)] IFormatProvider? formatProvider,
+		 [Optional] [DefaultParameterValue(LogicMonitorSink.DefaultBatchSizeLimit)] int batchSizeLimit,
+		 [Optional] [DefaultParameterValue(LogicMonitorSink.DefaultQueueLimit)] int queueLimit,
+		 [Optional] [DefaultParameterValue(null)] LoggingLevelSwitch? levelSwitch
 		)
 	{
 		ArgumentNullException.ThrowIfNull(sinkConfiguration);
@@ -107,13 +108,13 @@ public static class LoggerConfigurationLogicMonitorExtensions
 		 LogicMonitorClientOptions logicmonitorClientOptions,
 		 string customPropertyName,
 		 string customPropertyValue,
-		 Dictionary<string, FieldWriterBase>? fieldOptions = null,
-		 LogEventLevel restrictedToMinimumLevel = LevelAlias.Minimum,
-		 TimeSpan? period = null,
-		 IFormatProvider? formatProvider = null,
-		 int batchSizeLimit = LogicMonitorSink.DefaultBatchSizeLimit,
-		 int queueLimit = LogicMonitorSink.DefaultQueueLimit,
-		 LoggingLevelSwitch? levelSwitch = null
+		 [Optional] [DefaultParameterValue(null)] Dictionary<string, FieldWriterBase>? fieldOptions,
+		 [Optional] [DefaultParameterValue(LevelAlias.Minimum)] LogEventLevel restrictedToMinimumLevel,
+		 [Optional] TimeSpan? period,
+		 [Optional] [DefaultParameterValue(null)] IFormatProvider? formatProvider,
+		 [Optional] [DefaultParameterValue(LogicMonitorSink.DefaultBatchSizeLimit)] int batchSizeLimit,
+		 [Optional] [DefaultParameterValue(LogicMonitorSink.DefaultQueueLimit)] int queueLimit,
+		 [Optional] [DefaultParameterValue(null)] LoggingLevelSwitch? levelSwitch
 		)
 	{
 		ArgumentNullException.ThrowIfNull(sinkConfiguration);
@@ -142,13 +143,13 @@ public static class LoggerConfigurationLogicMonitorExtensions
 	public static LoggerConfiguration LogicMonitor(this LoggerSinkConfiguration sinkConfiguration,
 		 LogicMonitorClientOptions logicmonitorClientOptions,
 		 Dictionary<string, string> propertyDictionary,
-		 IDictionary<string, FieldWriterBase>? fieldOptions = null,
-		 LogEventLevel restrictedToMinimumLevel = LevelAlias.Minimum,
-		 TimeSpan? period = null,
-		 IFormatProvider? formatProvider = null,
-		 int batchSizeLimit = LogicMonitorSink.DefaultBatchSizeLimit,
-		 int queueLimit = LogicMonitorSink.DefaultQueueLimit,
-		 LoggingLevelSwitch? levelSwitch = null
+		 [Optional] [DefaultParameterValue(null)] IDictionary<string, FieldWriterBase>? fieldOptions,
+		 [Optional] [DefaultParameterValue(LevelAlias.Minimum)] LogEventLevel restrictedToMinimumLevel,
+		 [Optional] TimeSpan? period,
+		 [Optional] [DefaultParameterValue(null)] IFormatProvider? formatProvider,
+		 [Optional] [DefaultParameterValue(LogicMonitorSink.DefaultBatchSizeLimit)] int batchSizeLimit,
+		 [Optional] [DefaultParameterValue(LogicMonitorSink.DefaultQueueLimit)] int queueLimit,
+		 [Optional] [DefaultParameterValue(null)] LoggingLevelSwitch? levelSwitch
 		)
 	{
 		ArgumentNullException.ThrowIfNull(sinkConfiguration);
