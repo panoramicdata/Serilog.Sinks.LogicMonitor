@@ -1,4 +1,5 @@
 ﻿using Serilog.Events;
+using System.Runtime.InteropServices;
 
 namespace Serilog.Sinks.LogicMonitor;
 
@@ -20,5 +21,5 @@ public abstract class FieldWriterBase
 	/// <param name="logEvent">The log event to extract the value from.</param>
 	/// <param name="formatProvider">The optional format provider used for rendering.</param>
 	/// <returns>The extracted value to write, or <see langword="null"/>.</returns>
-	public abstract object? GetValue(LogEvent logEvent, IFormatProvider? formatProvider = null);
+	public abstract object? GetValue(LogEvent logEvent, [Optional] [DefaultParameterValue(null)] IFormatProvider? formatProvider);
 }
