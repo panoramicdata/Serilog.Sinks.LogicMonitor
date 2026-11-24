@@ -1,6 +1,6 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-[![Codacy Badge](https://app.codacy.com/project/badge/grade/serilog.sinks.logicmonitor)](https://app.codacy.com/gh/panoramicdata/serilog.sinks.logicmonitor/dashboard)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/779a51f84bd34eb0afbc5de3ede77426)](https://app.codacy.com/gh/panoramicdata/serilog.sinks.logicmonitor/dashboard)
 
 # Serilog.Sinks.LogicMonitor
 
