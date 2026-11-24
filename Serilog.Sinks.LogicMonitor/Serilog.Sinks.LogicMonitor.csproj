@@ -15,7 +15,6 @@
     <RepositoryUrl>https://github.com/panoramicdata/Serilog.Sinks.LogicMonitor</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <Copyright>Copyright © Panoramic Data Limited 2011-2026</Copyright>
     <PackageTags>Serilog Sink LogicMonitor</PackageTags>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
